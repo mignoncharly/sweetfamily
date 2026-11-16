@@ -6,8 +6,7 @@
     "vault": "vault.sweetfamily.gestionatech.de"
   },
   "public_blockers": [
-    "Server upstream DNS resolver still caches NXDOMAIN despite correct public A record",
-    "sudo authentication required for nginx/certificate activation"
+    "Administrator must rerun activation with bounded HTTPS readiness checks after the previous rollback"
   ],
   "email": "blocked; no live email authorized or sent",
   "source_sha256": "641a67a0b6571fae5a60fc4c90b53213d6bad32f1f5915935c72d5159bedf627",
@@ -165,8 +164,9 @@
   },
   "deployment_file_sha256": {
     "scripts/hosted.py": "2522dee4a1430bc25627536853bd3624c1dcd63e8820a5f463e850e033376be9",
-    "scripts/activate_hosted.sh": "ce221bb60b0615015d29f098964bf1b1dfe102b66c78fc17d3ff03e4b0fa9d82",
-    "infra/hosted/sweetfamily.conf": "5c273d3d01f8346b08612301df477c2af74d3489220d43e16ddd0c5a6acb8536"
+    "scripts/activate_hosted.sh": "e6c6a6d939b7059dc83d581e12e2ef96252129442eb4ab543c2d86f7d4bc22da",
+    "infra/hosted/sweetfamily.conf": "5c273d3d01f8346b08612301df477c2af74d3489220d43e16ddd0c5a6acb8536",
+    "scripts/hosted_activation_checks.sh": "ecbc40ce5bc5eaf9d9e664c979211e860f82b04b4218521c7650b1c734dfe3db"
   },
   "artifact_sha256": {
     "control": "ae31a0a881b5194334329eb6b77324f4be76d6b3891067db28d71298e599d5f6",
@@ -200,7 +200,7 @@
     ],
     "vault_public_a": "217.154.166.155",
     "server_resolver": "212.227.123.16",
-    "server_answer": "cached NXDOMAIN",
+    "server_answer": "Both domains now resolve to 217.154.166.155",
     "activation_wait_limit_seconds": 360,
     "preflight_checks": [
       "missing DNS fails before nginx",
@@ -208,5 +208,30 @@
       "already resolved DNS proceeds to nginx preflight"
     ],
     "nginx_modified_by_agent": false
+  },
+  "tls_reload_follow_up": {
+    "certificate_reported_by_user": {
+      "domains": [
+        "sweetfamily.gestionatech.de",
+        "vault.sweetfamily.gestionatech.de"
+      ],
+      "expires": "2027-02-14",
+      "certificate_retained_after_rollback": true
+    },
+    "public_https_verified": false,
+    "failure": "Immediate HTTPS check after reload saw mismatched certificate and triggered rollback",
+    "fix": "Reuse validated certificate; bounded local and public HTTPS readiness checks with CA and hostname validation",
+    "private_nginx_regression": {
+      "permanent_hostname_mismatch": "REFUSED, TLS validation retained",
+      "certificate_reuse": "Correct unexpired SANs accepted; wrong SAN refused",
+      "delayed_reload": "PASS: old certificate initially rejected, then new HTTPS worker accepted",
+      "ready_seconds": 1.039,
+      "both_hostnames": "PASS with the same SAN certificate"
+    },
+    "gtech": {
+      "active": true,
+      "main_pid": 1733623,
+      "restarts": 0
+    }
   }
 }

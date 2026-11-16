@@ -8,7 +8,7 @@ sur cet hôte partagé et `verify-release` reste bloqué.
 
 ## Étapes administrateur restantes
 
-Le portail résout déjà vers 217.154.166.155. Ajouter dans la zone gestionatech.de :
+Les deux domaines résolvent maintenant vers 217.154.166.155. Le record attendu dans la zone gestionatech.de est :
 
 ```text
 Type : A
@@ -168,3 +168,31 @@ pour attendre cette propagation locale, sans contourner le garde.
 cache périmé puis résolu accepté, résolution immédiate acceptée. Les prévols s'arrêtent avant
 nginx ; aucun certificat public ou succès de déploiement n'est revendiqué sur cette preuve.
 Relancer la même commande sudo ; elle peut maintenant attendre jusqu'à six minutes.
+
+## Suivi de l'émission du certificat et de la course au reload
+
+Le second lancement administrateur a émis le certificat des deux noms, annoncé valide
+jusqu'au 14 février 2027, puis a rollbacké le site après un contrôle TLS immédiat. Le reload
+systemd envoie le signal à nginx sans attendre que les nouveaux workers acceptent des
+connexions. Le contrôle exécuté dans la même seconde peut donc observer l'ancien certificat
+du vhost par défaut ; cela correspond au journal fourni. Les avertissements « protocol options
+redefined » n'étaient pas des erreurs de syntaxe et les autres sites ne sont pas modifiés.
+Voir [séquence de reload nginx](https://nginx.org/en/docs/control.html).
+
+L'activation réutilise désormais le certificat existant si chaîne, usage serveur, deux noms
+et plus de trente jours de validité sont vérifiés. Aucun nouvel appel Certbot n'est alors
+nécessaire. `openssl verify -verify_hostname` est utilisé : sur l'OpenSSL installé,
+`x509 -checkhost` peut afficher un échec de correspondance tout en sortant avec code zéro.
+En cas de nouvelle émission, le webroot ACME est testé après reload avant Certbot.
+
+Après installation HTTPS, un contrôle attend au plus soixante secondes par domaine en ciblant
+127.0.0.1 avec le vrai SNI et la validation CA/hostname active. Un second contrôle utilise la
+résolution publique, sans proxy HTTP sortant hérité. Les réponses doivent être HTTP 200 avec
+l'état ready. Aucun contrôle n'utilise `-k`, ne suit de redirection, ni n'accepte un mauvais
+certificat. Une défaillance persistante déclenche toujours le rollback du seul site Sweetfamily.
+
+Vérification privée exécutée : ancienne identité TLS refusée, ancien certificat pendant un
+reload retardé puis nouveau worker accepté, deux SAN acceptés et certificat de mauvais nom
+refusé pour réutilisation. Temps du scénario de reload : environ une seconde. Le nginx de test
+sur 127.0.0.1:18463 est arrêté. Cette preuve ne constitue pas une validation HTTPS publique.
+Relancer la même commande sudo ; le certificat déjà obtenu est conservé après rollback.

@@ -7,6 +7,7 @@ if [[ $(id -u) != 0 ]]; then
     exit 1
 fi
 project=/home/mignon/apps/sweetfamily
+source "$project/scripts/hosted_activation_checks.sh"
 owner=mignon
 owner_uid=$(id -u "$owner")
 portal=sweetfamily.gestionatech.de
@@ -22,6 +23,7 @@ changed=false
 had_site=false
 had_link=false
 finished=false
+probe=''
 cleanup() {
     if [[ $changed == true && $finished == false ]]; then
         if [[ $had_site == true ]]; then cp "$work/previous-site" "$site"; else rm -f "$site"; fi
@@ -29,6 +31,7 @@ cleanup() {
         if nginx -t; then systemctl reload nginx; fi
         echo 'Activation did not complete; the previous nginx site state was restored.' >&2
     fi
+    if [[ -n $probe ]]; then rm -f "$probe"; fi
     rm -rf "$work"
 }
 trap cleanup EXIT
@@ -92,6 +95,9 @@ for role in control vault; do
         "http://127.0.0.1:$port/health/ready" >/dev/null
 done
 install -d -m 0755 "$webroot/.well-known/acme-challenge"
+if sf_certificate_ready "$cert" "$portal" "$vault"; then
+    echo 'Reusing the valid certificate already issued for both Sweetfamily domains.'
+else
 {
     echo "$marker"
     for domain in "$portal" "$vault"; do
@@ -113,14 +119,27 @@ changed=true
 if [[ $had_link == false ]]; then ln -s "$site" "$link"; fi
 nginx -t
 systemctl reload nginx
+probe=$(mktemp "$webroot/.well-known/acme-challenge/sweetfamily-preflight.XXXXXX")
+printf 'sweetfamily-acme-ready\n' > "$probe"
+chmod 0644 "$probe"
+for domain in "$portal" "$vault"; do
+    sf_wait_acme "$domain" "$probe" "$work"
+done
 certbot certonly --webroot --webroot-path "$webroot" \
     --cert-name "$portal" -d "$portal" -d "$vault" \
     --non-interactive --agree-tos --register-unsafely-without-email
+fi
 install -m 0644 "$project/infra/hosted/sweetfamily.conf" "$site"
+changed=true
+if [[ ! -L $link ]]; then ln -s "$site" "$link"; fi
 nginx -t
 systemctl reload nginx
+# A reload signal returning does not imply that new TLS workers are accepting yet.
 for domain in "$portal" "$vault"; do
-    curl --fail --silent --show-error --max-time 15 "https://$domain/health/ready" >/dev/null
+    sf_wait_https "$domain" local "$work"
+done
+for domain in "$portal" "$vault"; do
+    sf_wait_https "$domain" public "$work"
 done
 # Only these certificates trigger this hook; other applications' hooks are untouched.
 hook=/etc/letsencrypt/renewal-hooks/deploy/sweetfamily-staging-reload

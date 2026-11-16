@@ -79,3 +79,23 @@ le record est déjà public, puis exige toujours la résolution locale correcte 
 Un record absent reste bloqué. Syntaxe bash et trois prévols isolés PASS, sans exécution de
 commande nginx réelle. La preuve Python précédente reste inchangée ; le nouveau hash du shell
 est enregistré séparément dans le résumé JSON. Les deux backends et gtech restent actifs.
+
+## Suivi TLS du second lancement administrateur
+
+Les deux domaines résolvent désormais correctement sur le serveur. Selon le journal de
+l'utilisateur, Let's Encrypt a émis le certificat des deux noms jusqu'au 14 février 2027.
+Le contrôle TLS exécuté immédiatement après reload a reçu un certificat non correspondant,
+puis le script a restauré l'état nginx précédent. Le certificat émis reste conservé.
+
+Le script attend maintenant la readiness TLS des nouveaux workers, d'abord sur loopback
+avec le vrai SNI, puis via le domaine public. Les contrôles maintiennent validation CA/nom,
+exigent HTTP 200/ready et échouent toujours sur un problème persistant. Un certificat existant
+valide est réutilisé ; le webroot ACME est vérifié seulement lorsqu'une nouvelle émission
+est nécessaire. Les hashes du script et de son helper sont enregistrés dans le résumé JSON.
+
+`bash -n`, scan de secrets et scénario nginx/TLS privé PASS : mauvais certificat durable
+refusé ; ancien certificat pendant reload retardé puis nouveau certificat accepté ; les deux
+noms SAN vérifiés. Les preuves privées sont dans `.local/tls-reload-check/result.json` et
+l'instance de test est arrêtée. Aucun changement du runtime Django ; la requalification
+Python précédente reste celle de son snapshot. La validation publique demeure en attente
+d'une nouvelle exécution sudo. gtech reste actif, même PID et zéro restart.
