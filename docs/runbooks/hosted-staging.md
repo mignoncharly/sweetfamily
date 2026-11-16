@@ -24,6 +24,12 @@ cette adresse, puis exécuter depuis un terminal administrateur du serveur :
 sudo bash /home/mignon/apps/sweetfamily/scripts/activate_hosted.sh
 ```
 
+Si le record vient d'être créé, les DNS publics peuvent déjà retourner la bonne adresse
+alors que le résolveur du serveur conserve un ancien NXDOMAIN. Le script vérifie 1.1.1.1,
+puis attend au plus six minutes que `getent ahostsv4` confirme la bonne adresse localement.
+Il ne change aucun résolveur partagé et ne touche nginx qu'après cette confirmation.
+Un record réellement absent conserve un refus explicite avant toute modification.
+
 La session agent ne peut pas exécuter ce dernier pas : sudo exige une authentification et
 `/etc/nginx` ainsi que les certificats sont détenus par root. Ne jamais coller de mot de passe
 ou secret dans la conversation. Les fichiers exacts sont reviewables :
@@ -148,3 +154,17 @@ exige un chemin de fichier explicitement autorisé et une autorisation d'envoi ;
 gtech n'a été lu et aucun email réel n'a été envoyé. Les critères de production restants
 (indépendance, matériel assistif, email, backups/alertes/maintenance programmée, restauration,
 patch PostgreSQL et revue externe) restent ouverts.
+
+## Suivi DNS après le premier essai administrateur
+
+L'essai utilisateur s'est arrêté sur le garde DNS avant toute modification nginx.
+Le record du coffre est maintenant confirmé à 217.154.166.155 par ns41/ns42.domaincontrol.com,
+1.1.1.1 et 8.8.8.8. Le résolveur configuré sur le serveur (212.227.123.16) conserve un ancien
+NXDOMAIN avec TTL résiduel de quelques minutes. Un flush local a été exécuté sans changer
+la configuration DNS ; le cache amont reste la cause observée. L'activation a été ajustée
+pour attendre cette propagation locale, sans contourner le garde.
+
+`bash -n` et trois prévols isolés avec commandes simulées passent : DNS absent refusé,
+cache périmé puis résolu accepté, résolution immédiate acceptée. Les prévols s'arrêtent avant
+nginx ; aucun certificat public ou succès de déploiement n'est revendiqué sur cette preuve.
+Relancer la même commande sudo ; elle peut maintenant attendre jusqu'à six minutes.

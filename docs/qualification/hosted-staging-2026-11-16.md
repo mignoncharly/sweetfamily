@@ -69,3 +69,13 @@ Aucune clé de qualification n'est réutilisée. L'opérateur indépendant du co
 DNS/accès/récupération séparés, matériel assistif, envois réels, restauration indépendante,
 RPO/RTO, backups externes/alertes, entretien programmé, correctif PostgreSQL et revue externe
 restent des conditions de production. Cette préparation n'autorise pas l'usage familial réel.
+
+## Suivi du premier lancement administrateur
+
+Le script s'est arrêté au contrôle DNS avant modification nginx. Le record du coffre est
+maintenant correct sur les deux serveurs autoritaires et 1.1.1.1/8.8.8.8. Le résolveur amont du
+serveur conserve un ancien NXDOMAIN. L'activation attend désormais au plus 360 secondes si
+le record est déjà public, puis exige toujours la résolution locale correcte avant nginx.
+Un record absent reste bloqué. Syntaxe bash et trois prévols isolés PASS, sans exécution de
+commande nginx réelle. La preuve Python précédente reste inchangée ; le nouveau hash du shell
+est enregistré séparément dans le résumé JSON. Les deux backends et gtech restent actifs.

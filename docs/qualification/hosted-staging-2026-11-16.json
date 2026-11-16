@@ -6,7 +6,7 @@
     "vault": "vault.sweetfamily.gestionatech.de"
   },
   "public_blockers": [
-    "A record vault.sweetfamily.gestionatech.de -> 217.154.166.155 missing",
+    "Server upstream DNS resolver still caches NXDOMAIN despite correct public A record",
     "sudo authentication required for nginx/certificate activation"
   ],
   "email": "blocked; no live email authorized or sent",
@@ -165,7 +165,7 @@
   },
   "deployment_file_sha256": {
     "scripts/hosted.py": "2522dee4a1430bc25627536853bd3624c1dcd63e8820a5f463e850e033376be9",
-    "scripts/activate_hosted.sh": "28f413efe3eb271a95a22a9b00058435e7cc9bf179c5b52618d1704172309247",
+    "scripts/activate_hosted.sh": "ce221bb60b0615015d29f098964bf1b1dfe102b66c78fc17d3ff03e4b0fa9d82",
     "infra/hosted/sweetfamily.conf": "5c273d3d01f8346b08612301df477c2af74d3489220d43e16ddd0c5a6acb8536"
   },
   "artifact_sha256": {
@@ -188,5 +188,25 @@
     "service-vault.xml": "b3b7e38bc1084bd61b4641c13ea2ecd9e74c95540c1484f40b2246cb98d73134",
     "smtp-local.json": "22105528d0259daea6b3bebef863887fb3773bea66d0f7014582bd64e12a7eb3",
     "tests.log": "e9e8393a6966e346ee32ee06d6ddfdefed7eedb0e87946a0871034328abdf212"
+  },
+  "dns_follow_up": {
+    "authoritative_nameservers": [
+      "ns41.domaincontrol.com",
+      "ns42.domaincontrol.com"
+    ],
+    "public_resolvers": [
+      "1.1.1.1",
+      "8.8.8.8"
+    ],
+    "vault_public_a": "217.154.166.155",
+    "server_resolver": "212.227.123.16",
+    "server_answer": "cached NXDOMAIN",
+    "activation_wait_limit_seconds": 360,
+    "preflight_checks": [
+      "missing DNS fails before nginx",
+      "cached DNS becomes ready before nginx",
+      "already resolved DNS proceeds to nginx preflight"
+    ],
+    "nginx_modified_by_agent": false
   }
 }

@@ -36,10 +36,31 @@ as_owner() {
     runuser -u "$owner" -- env XDG_RUNTIME_DIR="/run/user/$owner_uid" \
         DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$owner_uid/bus" "$@"
 }
+local_dns_matches() {
+    getent ahostsv4 "$1" | awk '{print $1}' | sort -u | grep -Fxq "$address"
+}
 for domain in "$portal" "$vault"; do
-    if ! getent ahostsv4 "$domain" | awk '{print $1}' | sort -u | grep -Fxq "$address"; then
-        echo "DNS required before activation: A $domain -> $address" >&2
-        exit 2
+    if ! local_dns_matches "$domain"; then
+        # A newly created record may already be public while the server's provider
+        # retains an older NXDOMAIN. Wait without changing shared DNS configuration.
+        if dig @1.1.1.1 +time=2 +tries=1 +short "$domain" A | grep -Fxq "$address"; then
+            echo "Public DNS is correct for $domain; waiting up to 6 minutes for this server's DNS cache."
+            deadline=$((SECONDS + 360))
+            attempts=0
+            until local_dns_matches "$domain"; do
+                if (( SECONDS >= deadline )); then break; fi
+                sleep 10
+                attempts=$((attempts + 1))
+                if (( attempts % 6 == 0 )); then
+                    echo "Still waiting for the server resolver: $domain"
+                fi
+            done
+        fi
+        if ! local_dns_matches "$domain"; then
+            echo "DNS not ready on this server: A $domain must resolve to $address" >&2
+            echo "No nginx changes were made. Check DNS or retry after cached negative answers expire." >&2
+            exit 2
+        fi
     fi
     if [[ -n $(dig +short AAAA "$domain") ]]; then
         echo "Review the IPv6 record for $domain before activation; this host has no public IPv6." >&2
