@@ -138,3 +138,97 @@ def test_native_browser_forms_and_accessibility():
             SealedDraw.objects.filter(event__in=[event, second]).delete()
             PrivateEvent.objects.filter(pk__in=[event.id, second.id]).delete()
             get_user_model().objects.filter(pk__in=users).delete()
+
+
+@pytest.mark.concurrent_db
+def test_independent_enrollment_personal_code_browser(tmp_path, monkeypatch):
+    if settings.SERVICE_ROLE != "vault" or os.environ.get("NOEL_HTTP_ONLY") == "true":
+        pytest.skip("Vault enrollment browser case; HTTP-only runner omits this journey.")
+    from io import StringIO
+
+    from access_code_cases import group
+    from django.core.management import call_command
+    from django.test import override_settings
+    from vault_core.models import PrivateEvent
+
+    directory = tmp_path / "browser-verifier"
+    subprocess.run(
+        [
+            str(tasks.PYTHON),
+            "scripts/enrollment_verifier.py",
+            "init",
+            "--directory",
+            str(directory),
+        ],
+        check=True,
+        capture_output=True,
+    )
+    call_command(
+        "enrollment_verifier",
+        "grant",
+        public_key_file=str(directory / "public.json"),
+        stdout=StringIO(),
+    )
+    with override_settings(WHATSAPP_ENROLLMENT_ENABLED=True):
+        event = group()
+    port = tasks.BROWSER_PORTS["vault"]
+    tasks.require_free_port(port)
+    fixture = {
+        "origin": f"http://127.0.0.1:{port}",
+        "vault_origin": settings.PUBLIC_ORIGIN,
+        "member_id": str(event.members.first().id),
+        "directory": str(directory),
+        "key_file": str(directory / "private.json"),
+    }
+    web_env = {
+        k: v
+        for k, v in os.environ.items()
+        if k
+        not in {
+            "OPERATIONS_DIRECTORY",
+            "OPERATIONS_KEY",
+            "BACKUP_ENCRYPTION_KEY",
+            "BACKUP_DB_USER",
+            "BACKUP_DB_PASSWORD",
+            "NOEL_SYNTHETIC_VERIFIER_KEY",
+        }
+    } | {"WHATSAPP_ENROLLMENT_ENABLED": "true"}
+    process = subprocess.Popen(
+        [str(tasks.PYTHON), "scripts/serve.py", "vault", str(port)],
+        env=web_env,
+        cwd=tasks.ROOT,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    try:
+        for _ in range(100):
+            if process.poll() is not None:
+                raise AssertionError("Enrollment browser server exited")
+            try:
+                with urllib.request.urlopen(f"http://127.0.0.1:{port}/health/ready", timeout=1):
+                    break
+            except OSError:
+                time.sleep(0.1)
+        env = os.environ.copy() | {
+            "WHATSAPP_ENROLLMENT_ENABLED": "true",
+            "NOEL_UI_FIXTURE": json.dumps(fixture),
+            "NOEL_TEST_PYTHON": str(tasks.PYTHON),
+            "PLAYWRIGHT_BROWSERS_PATH": str(tasks.LOCAL / "pw-browsers"),
+        }
+        result = subprocess.run(
+            ["node", "frontend/tests/access-codes.mjs"],
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+        print(result.stdout)
+    finally:
+        process.terminate()
+        process.wait(timeout=15)
+        from django.contrib.auth import get_user_model
+
+        users = set(event.members.values_list("identity__user_id", flat=True))
+        PrivateEvent.objects.filter(pk=event.id).delete()
+        get_user_model().objects.filter(pk__in=users).delete()

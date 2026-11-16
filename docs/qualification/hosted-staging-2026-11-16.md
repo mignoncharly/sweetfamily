@@ -122,3 +122,12 @@ conserve ces faits sans cookies ou secrets. Les checks système ne remplacent pa
 manuelle assistive, email, charge authentifiée, supervision d'incident, maintenance planifiée,
 restauration indépendante/RPO/RTO et revue externe. Aucun email réel ou tirage familial n'est
 exécuté. L'email et la connexion email restent explicitement désactivés dans le bandeau.
+
+## Promotion et recette sans email ultérieures
+
+Le [rapport sans email](email-free-enrollment-2026-11-16.md) et son JSON portent la source
+ultérieure `880bbd1dde7ae4addfe14fb80cf58caf96ae89e260d3b977cb9a7e17646d6a74`, les empreintes
+et la recette publique synthétique finale. Les résultats de cette section antérieure restent
+historiques. Les nouvelles releases sont déployées avec backup/maintenance/migrations ; le
+nouveau module absent du premier ZIP a été corrigé et requalifié. Recette HTTPS synthétique
+PASS puis purge ; zéro vérificateur réel attribué, flag désactivé, production toujours BLOCKED.

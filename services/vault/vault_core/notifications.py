@@ -74,6 +74,8 @@ def enqueue(
 ):
     from .domain import queue_mail
 
+    if member.identity.email is None:
+        return None
     subject, body = TEXT[kind]
     if kind == "OWNERSHIP":
         body += f" Nouveau nom d'organisation annoncé : {owner_label}."
@@ -108,7 +110,7 @@ def prelock(candidate):
 
 
 def useful(member, kind, event, version=None):
-    if not member.active or not member.identity.user.is_active:
+    if not member.active or not member.identity.user.is_active or member.identity.email is None:
         return False
     if kind == "CANCELLED":
         return event.state == "CANCELLED" and member.claimed_at is not None

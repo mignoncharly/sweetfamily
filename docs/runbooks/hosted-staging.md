@@ -221,3 +221,23 @@ workers. Le script a terminé avec succès et les deux services sont maintenant 
 HTTPS public. Les tentatives précédentes et les tests privés ci-dessus constituent l'historique
 du diagnostic ; ils ne sont plus les blocages courants. Le rapport JSON conserve la vérification
 publique, les informations TLS et l'état des unités. Aucun secret ou email réel n'est utilisé.
+
+## Mise à jour du parcours sans email — 16 novembre 2026
+
+Les releases ont été mises à niveau après le run `20261116T143006Z-ae8bc273`, avec backup chiffré
+par rôle, maintenance, arrêt des quatre seuls web/worker Sweetfamily, conservation des releases
+précédentes, migrations, checks, vérification/reprise puis redémarrage de ces unités. Les exigences
+verrouillées n'ont pas changé ; les venvs et clés/bases ne sont pas recréées. Les preuves d'upgrade
+sont dans `.local/hosted/upgrades/20261116T143006Z-ae8bc273`.
+
+Le [rapport sans email](../qualification/email-free-enrollment-2026-11-16.md) consigne une recette
+synthétique sur le vrai HTTPS du coffre : sept scans Axe, approbation signée, code/session et
+remplacement PASS, puis purge des quatre participants et révocation/suppression du rôle test.
+Aucune donnée réelle ni tirage réel. La première version du ZIP omettait un module ; le correctif
+et son import depuis l'archive extraite ont été requalifiés avant la dernière promotion.
+
+Le flag WHATSAPP_ENROLLMENT_ENABLED est revenu à false ; la route de connexion par code renvoie
+404 tant que cette fonctionnalité est désactivée. Le rôle **Independent vault operator demeure
+NON ATTRIBUÉ**. La recette ne nomme personne et ne prouve pas l'indépendance d'un serveur/DNS
+encore contrôlés ensemble. Ne pas activer pour de vrais utilisateurs sur cette seule preuve.
+Le [runbook de vérification](independent-enrollment.md) précise les conditions d'attribution.

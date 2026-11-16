@@ -184,3 +184,25 @@ hors serveur PASS. Six unités actives et enabled, linger actif, hook de renouve
 Le [runbook](runbooks/hosted-staging.md) et le [rapport](qualification/hosted-staging-2026-11-16.md)
 portent les preuves. L'email et la connexion email restent désactivés ; la production et
 l'indépendance du coffre restent non qualifiées. gtech conserve son PID et zéro restart.
+
+## Accès participant sans email — ADR-0013, 16 novembre 2026
+
+Décision utilisateur : invitations WhatsApp privées, sessions mémorisées et code personnel
+sauvegardé, en conservant la protection contre l'organisateur. Le lien distribué ne connecte
+personne : demande liée au navigateur, approbation signée par un rôle indépendant, puis code
+permanent affiché au seul participant. Le portail ne voit ni code ni action de reset d'un
+compte revendiqué. Email facultatif, aucun email factice, notifications disponibles dans
+l'espace sans outbox pour ces comptes. Consentements, scellement, journal et maintenance préservés.
+
+Le rôle **Independent vault operator reste NON ATTRIBUÉ**. Aucun droit n'est donné à
+l'organisateur ; aucun nom réel ou accord d'exploitation n'est inventé. Les clés des tests sont
+synthétiques. Le flag reste désactivé par défaut. La récupération après restauration bloque les
+codes, sessions, approbations et rôles restaurés, puis impose une nouvelle décision indépendante.
+
+Le [rapport de qualification du nouveau parcours](qualification/email-free-enrollment-2026-11-16.md)
+porte les résultats/source/artéfacts réellement exécutés. La
+[préparation production](qualification/production-readiness.md) conserve les critères ouverts,
+notamment la nomination, le contrôle indépendant de l'infrastructure/DNS/recovery, la recette
+humaine et la revue externe. Le [runbook](runbooks/independent-enrollment.md) définit exactement
+les contrôles, permissions minimales et limites de la preuve email. Aucune préparation
+synthétique ou séparation de configuration sur cet hôte ne prouve l'indépendance réelle.

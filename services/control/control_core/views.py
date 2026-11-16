@@ -195,7 +195,7 @@ def add_member(request, event_id):
                 event=event,
                 display_name=name,
                 country=country(data["country"]),
-                email=EmailField().clean(data["email"]),
+                email=optional_member_email(data["email"]),
             )
             event.version += 1
             event.save(update_fields=["version"])
@@ -204,6 +204,12 @@ def add_member(request, event_id):
         return error("événement indisponible.", 404)
     except (ValueError, ValidationError, TypeError, KeyError, IntegrityError):
         return error("Vérifie le nom distinct, le pays et l'email personnel.")
+
+
+def optional_member_email(value):
+    if value is None and settings.WHATSAPP_ENROLLMENT_ENABLED:
+        return None
+    return EmailField().clean(value)
 
 
 def send_command(command):
@@ -326,7 +332,7 @@ def correct_member(request, event_id, member_id):
         key = request.headers.get("Idempotency-Key", "")
         if set(data) != {"version", "email"} or not 1 <= len(key) <= 100:
             raise ValueError()
-        email = EmailField().clean(data["email"])
+        email = optional_member_email(data["email"])
         with transaction.atomic():
             event = owned(request, event_id, True)
             member = event.roster.get(pk=member_id)
@@ -346,7 +352,10 @@ def correct_member(request, event_id, member_id):
                     or member.registration_confirmed
                 ):
                     return error("Identité ou version non modifiable.", 409)
-                if event.roster.filter(email=email).exclude(pk=member_id).exists():
+                if (
+                    email is not None
+                    and event.roster.filter(email=email).exclude(pk=member_id).exists()
+                ):
                     raise ValueError()
                 command = ControlCommand.objects.create(
                     event=event,

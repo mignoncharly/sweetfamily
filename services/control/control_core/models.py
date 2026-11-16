@@ -78,7 +78,7 @@ class RosterProposal(models.Model):
     event = models.ForeignKey(EventDraft, on_delete=models.CASCADE, related_name="roster")
     display_name = models.CharField(max_length=80)
     country = models.CharField(max_length=2)
-    email = models.EmailField()
+    email = models.EmailField(null=True, blank=True)
     registration_confirmed = models.BooleanField(default=False)
 
     class Meta:

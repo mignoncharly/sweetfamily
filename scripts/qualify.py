@@ -284,6 +284,10 @@ def main():
         "Independent security review and genuinely separated operator/domains/keys/"
         "recovery not demonstrated"
     )
+    blockers.append(
+        "Email-free enrollment: independent vault operator remains UNASSIGNED; "
+        "synthetic verifier signatures do not establish independent production operation."
+    )
     for name in ("http-control.json", "http-vault.json", "engine.json"):
         if not (directory / name).exists() or not json.loads((directory / name).read_text()).get(
             "target_met"

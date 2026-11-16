@@ -1,0 +1,193 @@
+{
+  "date": "2026-11-16",
+  "status": "SYNTHETIC_QUALIFICATION_PASS; PRODUCTION_BLOCKED",
+  "verifier_role": "Independent vault operator",
+  "real_verifier_assignment": "UNASSIGNED",
+  "qualification_run": "20261116T143006Z-ae8bc273",
+  "source_sha256": "880bbd1dde7ae4addfe14fb80cf58caf96ae89e260d3b977cb9a7e17646d6a74",
+  "local_status": "PASS",
+  "release_status": "BLOCKED",
+  "release_blockers": [
+    "T22: Automated Chromium/Axe/keyboard/reflow only; real phone, assistive technology and manual zoom review not executed.",
+    "T23: Live Zoho/Resend delivery deferred by user. Configure secrets locally, verify authorised sender domain and run staging_mail probe to authorised inbox, retaining delivery facts.",
+    "Independent security review and genuinely separated operator/domains/keys/recovery not demonstrated",
+    "Email-free enrollment: independent vault operator remains UNASSIGNED; synthetic verifier signatures do not establish independent production operation."
+  ],
+  "test_counts": {
+    "browser-control.xml": {
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    "browser-vault.xml": {
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "root.xml": {
+      "tests": 76,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "service-control.xml": {
+      "tests": 52,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "service-vault.xml": {
+      "tests": 186,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "stages": [
+    {
+      "stage": "checks",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 6.102
+    },
+    {
+      "stage": "security",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 2.458
+    },
+    {
+      "stage": "artifacts",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 5.714
+    },
+    {
+      "stage": "tests",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 100.874
+    },
+    {
+      "stage": "browser-load",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 50.683
+    },
+    {
+      "stage": "engine-timing",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 4.267
+    }
+  ],
+  "http_reference": {
+    "control": {
+      "role": "control",
+      "events": 2,
+      "sessions_per_event": 20,
+      "concurrency": 40,
+      "requests": 400,
+      "warmup_requests": 40,
+      "p50_http_ms": 176.719,
+      "p95_http_ms": 231.411,
+      "max_http_ms": 245.616,
+      "wall_seconds": 1.882,
+      "target_p95_ms": 500,
+      "transport": "HTTP loopback, new connection per request, no TLS",
+      "server_threads": 4,
+      "server_processes": 2,
+      "threads_per_process": 2,
+      "resource_limits": "none; local host, not reference production sizes",
+      "target_met": true,
+      "terminated_backends": 6,
+      "reconnect_after_backend_termination": "PASS",
+      "db_conn_max_age": 60,
+      "db_health_checks": true
+    },
+    "vault": {
+      "role": "vault",
+      "events": 2,
+      "sessions_per_event": 20,
+      "concurrency": 40,
+      "requests": 400,
+      "warmup_requests": 40,
+      "p50_http_ms": 228.683,
+      "p95_http_ms": 411.94,
+      "max_http_ms": 437.231,
+      "wall_seconds": 2.572,
+      "target_p95_ms": 500,
+      "transport": "HTTP loopback, new connection per request, no TLS",
+      "server_threads": 4,
+      "server_processes": 2,
+      "threads_per_process": 2,
+      "resource_limits": "none; local host, not reference production sizes",
+      "target_met": true,
+      "terminated_backends": 6,
+      "reconnect_after_backend_termination": "PASS",
+      "db_conn_max_age": 60,
+      "db_health_checks": true
+    }
+  },
+  "native_axe_scans": 40,
+  "native_axe_violations": 0,
+  "artifacts": {
+    "control": {
+      "sha256": "5626f2d362044b4e4aa45a7bd1400cd36586ba144c4e2deaaccb7606f83e7803",
+      "deployed_entries_match": true,
+      "entries": 65
+    },
+    "vault": {
+      "sha256": "099fe853fecce9592304016aad6a41bb00dbbe31a0ac9a36afb43165500d5e5c",
+      "deployed_entries_match": true,
+      "entries": 104
+    }
+  },
+  "hosted_upgrade": "PASS with per-role backups, maintenance and retained previous releases",
+  "public_https_synthetic": {
+    "environment": "public HTTPS staging, synthetic only",
+    "status": "PASS",
+    "event_id": "a1745019-8aa1-47d6-8b91-de4167971f68",
+    "verifier_appointed": false,
+    "axe_scans": 7,
+    "axe_violations": 0,
+    "tls": "Chromium default validation; no bypass or resolver override",
+    "mail": "blocked",
+    "real_draw": false,
+    "after_cleanup": {
+      "events": 0,
+      "users": 0,
+      "credentials": 0,
+      "claims": 0,
+      "enabled_verifiers": 0
+    },
+    "feature_enabled_after_cleanup": false,
+    "gtech_unchanged": true,
+    "readiness_after_cleanup": "200 both domains",
+    "disabled_route_status": 404
+  },
+  "public_evidence_directory": ".local/hosted/synthetic-enrollment-20261116T143416Z",
+  "public_evidence_sha256": "0a42fa16b108bc17bdb5f862495650bf1aaa32d4209d3c5d8dbc5c7130f5bd44",
+  "independent_production_operation_demonstrated": false,
+  "real_email_sent": false,
+  "real_draw_executed": false,
+  "evidence_sha256": {
+    "artifacts.log": "2afaa0ce5cab2245b55120d696b9682dd512200c2b7c4c8ce88d5640fe2da397",
+    "browser-control.xml": "948bb1139c8c539542d39a142fd796764b218986b3d3d1b2a283d0ad082d1ce6",
+    "browser-load.log": "89a9152152179551e477f3e4ec2bc46d45b9c12e8324bfc1d6d184b3558d993f",
+    "browser-vault.xml": "229641749e817ca7a305ccb483206fba85c6ccd8a405a417aa23333462b2b70e",
+    "checks.log": "f7c4da76031820081b7896e2d120d369f73799ca84b38ef167dbab4851d63410",
+    "engine-timing.log": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "engine.json": "89362baa379eeaaedc3592783af17c873ea87b41813ec148a7be9921c5d2625a",
+    "http-control.json": "b3590e3acd074a45d562e6509bfba362d44dd3860b9f902a9e58c2f98588b8e1",
+    "http-vault.json": "1995a3f2911b567eb896c55fc01fac80c1690ab0f108727827b231485110f2e7",
+    "root.xml": "0a3939609e5a2976b94b9cf092d439533af0af23076490ea61c77edcf4c2f2a2",
+    "security.log": "316b83a3c1e67357fd7926483f8308908bc2ee6def1db77af49f9e9a43a0a07e",
+    "service-control.xml": "16d5d812d122db48339635e3fe4a2013e6a13c44302bedcb45ebb1b61109cc2e",
+    "service-vault.xml": "0107ac394aefc4288250b33fd08b6528eef2abb67aeb56954a8de71dea55896c",
+    "smtp-local.json": "c906669924a6c9b2d10ade60d2641a1ea23c025e1cc39108c155db71d35e6dcc",
+    "tests.log": "c31a6d40bd90fe6a1785072144cc19fb0c3ac6a002bbeb9684406d8a8822e40c"
+  }
+}

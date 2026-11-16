@@ -69,7 +69,7 @@ class PrivateEvent(models.Model):
 class VerifiedIdentity(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, null=True, blank=True)
     verified_at = models.DateTimeField(null=True)
 
 
@@ -100,6 +100,38 @@ class Invitation(models.Model):
     used_at = models.DateTimeField(null=True)
     revoked_at = models.DateTimeField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    recovery = models.BooleanField(default=False)
+
+
+class EnrollmentClaim(models.Model):
+    """An untrusted request, bound to one browser; never an authenticated account."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    invitation = models.ForeignKey(Invitation, on_delete=models.CASCADE)
+    binding_digest = models.CharField(max_length=64)
+    comparison = models.CharField(max_length=19)
+    created_at = models.DateTimeField(default=timezone.now)
+    expires_at = models.DateTimeField()
+    approved_at = models.DateTimeField(null=True)
+    approved_by = models.ForeignKey("EnrollmentVerifier", null=True, on_delete=models.SET_NULL)
+    used_at = models.DateTimeField(null=True)
+    revoked_at = models.DateTimeField(null=True)
+
+
+class AccessCredential(models.Model):
+    identity = models.OneToOneField(VerifiedIdentity, on_delete=models.CASCADE)
+    digest = models.CharField(max_length=64, unique=True)
+    generation = models.UUIDField(default=uuid.uuid4, editable=False)
+    enabled = models.BooleanField(default=True)
+
+
+class EnrollmentVerifier(models.Model):
+    """Separate approval role. No assignment is created by migrations/deployment."""
+
+    id = models.UUIDField(primary_key=True, editable=False)
+    role = models.CharField(max_length=40, default="Independent vault operator", editable=False)
+    public_key = models.CharField(max_length=64, unique=True)
+    enabled = models.BooleanField(default=False)
 
 
 class RosterConsent(models.Model):

@@ -168,6 +168,7 @@ def prepare():
             "TRUSTED_PROXY": "127.0.0.1",
             "MAIL_PROVIDER": "blocked",
             "MAIL_LIVE_ENABLED": "false",
+            "WHATSAPP_ENROLLMENT_ENABLED": "false",
             "NOTIFICATION_FROM_EMAIL": f"disabled-{role}@noel.invalid",
             "WEB_PROCESSES": "2",
             "WEB_THREADS": "2",

@@ -1,0 +1,8 @@
+{% extends "allauth/layouts/base.html" %}{% block content %}
+<h1>Conserver mon code personnel</h1>
+<p>Ce code permet de retrouver ton espace. Conserve-le dans un gestionnaire de mots de passe ou sur papier en lieu sûr. Ne l'envoie ni au groupe ni à l'organisateur.</p>
+<p><code>{{ personal_code }}</code></p>
+<button type="button" data-copy="{{ personal_code }}">Copier mon code personnel</button>
+<p>Il est affiché uniquement maintenant. En cas de remplacement, l'ancien code et les autres sessions cessent de fonctionner. Si tu perds le code, une nouvelle vérification indépendante est nécessaire.</p>
+<a class="button" href="/">J'ai conservé mon code : ouvrir mon espace</a>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "allauth/layouts/base.html" %}{% block content %}
+<h1>Vérifier mon premier accès</h1>
+<p>{{ claim.invitation.member.display_name }} · {{ claim.invitation.member.event.title }}</p>
+<p>Contacte l'opérateur indépendant par un moyen que tu connais déjà, ou rencontre-le. Il doit vérifier que c'est bien toi et comparer la demande de cet appareil. L'organisateur ne peut pas approuver cette étape.</p>
+<dl><dt>Référence de la demande</dt><dd>{{ claim.id }}</dd><dt>Comparaison à lire au vérificateur</dt><dd>{{ claim.comparison }}</dd></dl>
+<p>Expiration : {{ claim.expires_at|date:"d/m/Y H:i T" }}. Ne partage jamais ton futur code personnel.</p>
+{% if claim.approved_at %}<p role="status">Vérification approuvée. Active ton accès depuis cet appareil dans les quinze minutes.</p>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button>Activer mon accès et obtenir mon code</button></form>
+{% else %}<p role="status">Vérification en attente. Cette page ne donne pas accès au compte.</p><a href="/accounts/enrollment/">Vérifier si mon accès est approuvé</a>{% endif %}
+{% endblock %}

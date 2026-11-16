@@ -46,3 +46,13 @@ Pour sweetfamily.gestionatech.de et vault.sweetfamily.gestionatech.de, consulter
 HTTPS après exécution administrateur, avec backends/SQL privés et unités utilisateur enabled.
 Les pages et certificats publics ont été vérifiés sans ignorer TLS. Ce résultat de staging
 ne lève pas les critères de production et ne configure aucun email réel.
+
+## Parcours participant sans email
+
+Livrer les migrations de roster nullable et EnrollmentClaim/AccessCredential/EnrollmentVerifier
+avec l'artéfact du rôle correspondant. Le coffre doit inclure noel_enrollment_approval.py ;
+le contrôle de distribution l'importe désormais depuis le ZIP extrait sans fallback dépôt.
+Conserver backup, maintenance, environnement distinct et vérification/reprise habituels.
+WHATSAPP_ENROLLMENT_ENABLED reste false par défaut. La nomination indépendante n'est jamais
+créée par déploiement/migration ; ne pas l'assimiler à une clé de test. La procédure de
+qualification synthétique et d'attribution future est dans independent-enrollment.md.

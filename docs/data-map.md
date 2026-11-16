@@ -111,3 +111,23 @@ Les copies anciennes et externes exigent leur propre inventaire. Le registre min
 au moins 120 jours et tant qu'un backup rejouable existe ; sa réduction exige une revue des
 copies détruites, sans expiration automatique non prouvée. Les nonces de clés encore
 utilisables restent réservés. Voir [politique et limites](runbooks/operations.md).
+
+## Accès sans email — données ajoutées
+
+- VerifiedIdentity.email et RosterProposal.email peuvent être null lorsque le mode est activé ;
+  compte sans mot de passe utilisable, aucune fausse adresse et aucun EmailAddress vérifié factice.
+- EnrollmentClaim : invitation, UUID, empreinte du secret navigateur, comparaison, dates et
+  référence du rôle approbateur ; aucune session authentifiée avant activation. Demande 24 heures
+  au maximum, activation dans les 15 minutes de l'approbation ; les lignes expirées ne donnent
+  aucun accès et sont supprimées avec l'événement à J+90.
+- AccessCredential : empreinte SHA-256 d'un code aléatoire de 160 bits, génération et enabled ;
+  jamais de code récupérable. Affichage à usage unique côté participant ; copie volontaire hors
+  application sous sa responsabilité. Suppression avec l'identité d'événement et le compte sans email.
+- EnrollmentVerifier : UUID de rôle, clé publique, rôle fixe et enabled ; aucune nomination créée
+  automatiquement. Clé privée de signature hors serveur/SQL, détenue par le vérificateur nommé.
+- Registre opérateur : reçus minimaux d'approbation et d'attribution/révocation de rôle, sans
+  comparaison, secret navigateur, code, souhait, nom/contact personnel ou association. Même
+  protection externe que le registre de rétention ; politique de conservation opérateur à qualifier.
+- Sans email, aucune outbox vers un fournisseur. Sessions toujours chiffrées ; code absent des
+  URL, logs, localStorage et projections. Restauration : codes/rôles/demandes restaurés désactivés
+  avant reprise, puis nouvelle attribution/vérification indépendante selon le runbook.

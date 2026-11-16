@@ -16,6 +16,37 @@ def setup():
     return client, EventDraft.objects.get(pk=create(client)["id"])
 
 
+def test_optional_email_invitation_contains_no_login_or_reset_secret():
+    from django.test import override_settings
+
+    with override_settings(WHATSAPP_ENROLLMENT_ENABLED=True):
+        client, event = setup()
+        for i in range(4):
+            event.refresh_from_db()
+            response = client.post(
+                f"/events/{event.id}/people/new",
+                {
+                    "version": event.version,
+                    "submission_id": str(uuid.uuid4()),
+                    "display_name": f"Sans email {i}",
+                    "country": "FR",
+                    "email": "",
+                },
+            )
+            assert response.status_code == 302, response.content
+        assert event.roster.filter(email=None).count() == 4
+        event.state = "OPEN"
+        event.save()
+        response = client.get(f"/events/{event.id}")
+        assert response.status_code == 200
+        for member in event.roster.all():
+            assert f"/accounts/enroll/{member.id}/" in response.content.decode()
+        assert "personal-code" not in response.content.decode()
+        event.roster.update(registration_confirmed=True)
+        response = client.get(f"/events/{event.id}")
+        assert "/accounts/enroll/" not in response.content.decode()
+
+
 def test_html_creation_idempotent_bound_errors_and_csv_formula():
     c, e = setup()
     assert c.get("/events/new").status_code == 200

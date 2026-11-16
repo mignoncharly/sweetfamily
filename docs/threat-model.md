@@ -39,3 +39,22 @@ Adversaires : inconnu avec lien volé, participant curieux, organisateur malveil
 Le contrôle combinatoire refuse les configurations où connaître sa propre attribution force celle d'un autre ; il ne protège pas contre coalitions, confidences, achats observés, révélations au réveillon, boîte compromise ou marchand. Chiffrer la base ne retire pas les capacités du service qui déchiffre. Python ne garantit pas l'effacement mémoire.
 
 Avant de revendiquer la garantie : preuve d'isolation des comptes et chemins de récupération, tests de fuite/autorisation/concurrence/restauration, exercice avec données synthétiques et revue indépendante de sécurité. Aucun de ces critères n'est validé en phase 1. Manque actuel : infrastructure, opérateur, domaines, comptes email, implémentation et preuves. La phase 2 reste possible.
+
+## Inscription sans email — risque de substitution initiale
+
+Un organisateur qui distribue tous les liens secrets d'authentification peut se connecter avant
+les invités. Un lien privé, à usage unique ou accompagné d'un nom ne résout pas cette capacité.
+Le nouveau lien est seulement une référence non authentifiante. L'attaquant peut déposer une
+demande concurrente, sans obtenir l'accès ou déplacer la demande légitime. Une signature du
+rôle indépendant après identification humaine approuve une demande liée à un navigateur exact.
+Rejeu, mauvais navigateur, rôle non attribué/révoqué, invitation périmée et clé organisateur sont
+refusés. Les pertes/restaurations ne réactivent pas les anciens codes ou rôles révoqués.
+
+L'email vérifie le contrôle d'une boîte. Il protège un lien intercepté seulement si la boîte est
+déjà correctement liée à la personne par une autorité de confiance ; l'organisateur pouvant
+proposer sa propre adresse sous un nom ne doit pas être cette seule autorité initiale.
+La cérémonie indépendante rend cette hypothèse explicite. Elle reste vulnérable à un vérificateur
+malveillant, à la manipulation de ce vérificateur, au vol de l'appareil/code participant ou à la
+compromission de l'infrastructure indépendante : ce sont des risques résiduels à recetter/revoir.
+Les limites et permissions sont détaillées dans runbooks/independent-enrollment.md. Le rôle réel
+reste NON ATTRIBUÉ et la séparation du serveur/DNS/recovery actuel n'est pas démontrée.

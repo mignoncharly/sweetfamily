@@ -59,6 +59,9 @@ def context(request):
         "service_role": settings.SERVICE_ROLE,
         "staging": settings.APP_ENV == "staging",
         "mail_disabled": settings.MAIL_PROVIDER == "blocked",
+        "whatsapp_enrollment": settings.WHATSAPP_ENROLLMENT_ENABLED,
+        "personal_code_account": request.session.get("_auth_user_backend")
+        == "vault_core.access_codes.AccessCodeBackend",
         "vault_origin": settings.VAULT_ORIGIN,
         "control_origin": settings.CONTROL_ORIGIN,
         "simulation": settings.MAIL_PROVIDER == "mailpit",
@@ -187,6 +190,18 @@ class MemberForm(VersionForm):
     email = forms.EmailField(
         label="Email personnel", help_text="Une boîte distincte et accessible à cette personne."
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if settings.WHATSAPP_ENROLLMENT_ENABLED:
+            self.fields["email"].required = False
+            self.fields["email"].help_text = (
+                "Facultatif : sans email, invitation WhatsApp privée et vérification "
+                "par l'opérateur indépendant du coffre avant le premier accès."
+            )
+
+    def clean_email(self):
+        return self.cleaned_data["email"] or None
 
 
 class ConfirmForm(VersionForm):

@@ -1,0 +1,8 @@
+{% extends "allauth/layouts/base.html" %}{% block content %}
+<h1>{% if recovery %}Récupérer mon accès{% else %}Invitation personnelle{% endif %}</h1>
+<p>{{ member.display_name }} · {{ member.event.title }}</p>
+<p>Ce lien ne donne aucun accès privé. Après ta demande, contacte directement l'opérateur indépendant du coffre pour vérifier ton identité et la comparaison affichée sur ton appareil. Ne transmets pas cette comparaison par l'organisateur.</p>
+<p>Partage l'invitation uniquement en message privé. Un aperçu WhatsApp ne l'active pas.</p>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button>Demander mon accès</button></form>
+<p>Déjà inscrit ? <a href="/accounts/personal-code/">Utiliser mon code personnel</a>.</p>
+{% endblock %}

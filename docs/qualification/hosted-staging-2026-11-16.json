@@ -382,5 +382,13 @@
       }
     ],
     "authenticated_https_load_qualified": false
+  },
+  "subsequent_qualification": {
+    "report": "email-free-enrollment-2026-11-16.json",
+    "qualification_run": "20261116T143006Z-ae8bc273",
+    "source_sha256": "880bbd1dde7ae4addfe14fb80cf58caf96ae89e260d3b977cb9a7e17646d6a74",
+    "real_verifier_assignment": "UNASSIGNED",
+    "feature_enabled": false,
+    "public_synthetic_status": "PASS"
   }
 }

@@ -11,6 +11,7 @@ import socket
 import subprocess
 import sys
 import tarfile
+import tempfile
 import time
 import urllib.request
 import zipfile
@@ -194,6 +195,9 @@ def environment(role):
     env.update(
         {
             "APP_ENV": "local",
+            "WHATSAPP_ENROLLMENT_ENABLED": values.get(
+                role.upper() + "_WHATSAPP_ENROLLMENT_ENABLED", "false"
+            ),
             "SERVICE_ROLE": role,
             "DEBUG": "false",
             "WEB_PROCESSES": str(WEB_PROCESSES),
@@ -652,6 +656,7 @@ def build_test():
             "frontend/tsconfig.json",
             "frontend/build.mjs",
             "frontend/tests/journeys.mjs",
+            "frontend/tests/access-codes.mjs",
             "frontend/src/main.ts",
             "frontend/src/main.css",
             ".env.example",
@@ -717,6 +722,9 @@ def build_prod():
             zip_entry(z, "noel_ui.py", (ROOT / "packages/contracts/noel_ui.py").read_bytes())
             for module in ("noel_operations.py", "noel_backups.py", "noel_server.py"):
                 zip_entry(z, module, (ROOT / "packages/contracts" / module).read_bytes())
+            if role == "vault":
+                module = "noel_enrollment_approval.py"
+                zip_entry(z, module, (ROOT / "packages/contracts" / module).read_bytes())
             for p in sorted((ROOT / "frontend/dist").glob("*")):
                 zip_entry(z, "assets/" + p.name, p.read_bytes())
 
@@ -750,11 +758,27 @@ def artifact_check():
                 "requirements.txt",
                 "assets/main.js",
                 "assets/main.css",
+                *(("noel_enrollment_approval.py",) if role == "vault" else ()),
             ):
                 if required not in z.namelist():
                     raise RuntimeError("Incomplete production artifact")
             if "--hash=sha256:" not in z.read("requirements.txt").decode():
                 raise RuntimeError("Dependency integrity missing")
+            # Import the shipped dependency from the extracted distribution,
+            # with no repository path fallback. Source-tree tests cannot detect
+            # a module omitted from the archive's explicit allowlist.
+            with tempfile.TemporaryDirectory(prefix="artifact-import-", dir=LOCAL) as folder:
+                for name in z.namelist():
+                    if not (Path(folder) / name).resolve().is_relative_to(Path(folder).resolve()):
+                        raise RuntimeError("Unsafe artifact path")
+                z.extractall(folder)
+                env = environment(role) | {"PYTHONPATH": folder}
+                modules = "import django; django.setup(); "
+                if role == "vault":
+                    modules += "import noel_enrollment_approval; import vault_core.access_codes"
+                else:
+                    modules += "import control_core.views"
+                subprocess.run([str(PYTHON), "-c", modules], env=env, cwd=folder, check=True)
     print("Production distributions checked; no diagnostics/tests/foreign service")
 
 

@@ -68,6 +68,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "vault_core.middleware.CodeSessionGuard",
     "django.contrib.messages.middleware.MessageMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "vault_core.middleware.PrivacyHeaders",
@@ -128,6 +129,7 @@ LOGGING = {
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
+    "vault_core.access_codes.AccessCodeBackend",
 ]
 ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_SIGNUP_FIELDS = ["email*"]
@@ -148,7 +150,15 @@ ACCOUNT_CHANGE_EMAIL = True
 ACCOUNT_SESSION_REMEMBER = False
 SESSION_COOKIE_AGE = 43200
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+WHATSAPP_ENROLLMENT_ENABLED = os.environ.get("WHATSAPP_ENROLLMENT_ENABLED", "false") == "true"
 ACCOUNT_RATE_LIMITS = {"request_login_code": "60/m/ip,3/m/key", "login": "60/m/ip"}
+ACCOUNT_RATE_LIMITS.update(
+    {
+        "access_code": "30/m/ip,10/10m/key",
+        "enrollment": "60/10m/ip",
+        "code_rotation": "5/10m/user",
+    }
+)
 MFA_SUPPORTED_TYPES = ["totp", "recovery_codes", "webauthn"]
 MFA_PASSKEY_LOGIN_ENABLED = True
 MFA_WEBAUTHN_ALLOW_INSECURE_ORIGIN = APP_ENV == "local"

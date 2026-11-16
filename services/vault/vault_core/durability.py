@@ -165,6 +165,6 @@ def release(record_id, receipt):
 
             mail = enqueue(member, "DRAW_READY", record.manifest_version)
         notification.mail = mail
-        notification.state = "QUEUED"
+        notification.state = "QUEUED" if mail else "IN_APP"
         notification.save(update_fields=["mail", "state"])
     bump(event)

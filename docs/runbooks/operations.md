@@ -99,3 +99,11 @@ et le drill local ne démontrent pas ces objectifs en production. Choisir et exe
 chaîne de snapshots suffisamment fréquents ou WAL/PITR, ainsi que la récupération des
 anciennes clés. Confirmer stockage indépendant, restauration hors site, délais et alertes
 avant toute ouverture réelle. Voir [récupération](restore.md) et [incident](incident.md).
+
+## Approbation indépendante sans email
+
+Le rôle Independent vault operator n'est pas attribué automatiquement et n'a aucun endpoint
+portail. Attribution/révocation de clé, cérémonie de premier accès, import des signatures et
+récupération sont décrits dans [independent-enrollment.md](independent-enrollment.md). Ne pas
+utiliser le compte organisateur comme approbateur. Une présence technique en base ne constitue
+pas une preuve d'indépendance ; la préparation production conserve la nomination ouverte.

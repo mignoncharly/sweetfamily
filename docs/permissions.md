@@ -49,3 +49,19 @@ Projections périodiques regroupées (proposition : toutes les 15 minutes), sans
 Liste fermée : proposition/création, ouverture/invitation, correction d'invitation non revendiquée, règles/exclusions avant tirage, retrait explicite, gel de manifeste, demande de tirage, annulation, clôture, renvoi/rappel neutre limité. Chaque commande comporte version de schéma, événement, version attendue, identifiant, timestamp, nonce et signature du corps ; idempotence persistante, conflit si même clé et contenu différent. Aucun changement d'identité vérifiée, récupération, lecture de souhait ou extraction du tirage.
 
 Les routes `/api/me/` déduisent le membre de la session et vérifient l'événement explicite à chaque requête ; aucun participant_id pour choisir autrui et aucun contexte global mutable entre onglets. Les lectures ne marquent pas la révélation : seul POST authentifié avec CSRF. Réponses d'accès refusé uniformes, erreurs avec code stable/message français/corrélation opaque ; 409 pour version/idempotence, 429 pour limite, 503 pour indisponibilité. Référence détaillée des chemins : section « Contrats techniques transversaux » du plan.
+
+## Rôle indépendant d'approbation — ADR-0013
+
+Le rôle **Independent vault operator** n'est attribué à aucune personne à ce jour. Il dispose
+d'une clé de signature propre ; sa clé publique doit être explicitement activée par l'opérateur
+technique indépendant. Permission minimale : attester une demande de premier accès/récupération
+après comparaison du navigateur du vrai participant. Aucun SQL, shell, compte organisateur,
+clé de déchiffrement, code personnel ou consultation globale d'associations n'est requis pour
+le vérificateur. Son outil de signature est hors ligne ; l'import relève de l'opérateur technique.
+
+Le portail peut copier une référence nominative non authentifiante et renouveler une invitation
+non revendiquée. Il ne peut approuver une demande, voir un code permanent ou récupérer une
+identité revendiquée. Les signatures de commandes et d'approbation utilisent des clés distinctes.
+L'absence de vérificateur reste un blocage visible de production, pas un droit donné à l'organisateur.
+Le [runbook](runbooks/independent-enrollment.md) décrit les contrôles humains et tous les accès
+hébergement/DNS/credentials/recovery devant rester hors de son contrôle.

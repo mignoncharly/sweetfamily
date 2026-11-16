@@ -3,7 +3,6 @@ import json
 import uuid
 from functools import wraps
 
-from allauth.account.models import EmailAddress
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
@@ -42,14 +41,16 @@ def authenticated(view):
                     status=401,
                 )
             )
-        if not EmailAddress.objects.filter(user=request.user, verified=True, primary=True).exists():
+        from .access_codes import verified_user
+
+        if not verified_user(request):
             return (
-                error("Vérifie ton email.", 403)
+                error("Fais vérifier ton identité dans le coffre.", 403)
                 if request.path.startswith("/api/")
                 else render(
                     request,
                     "vault/unavailable.html",
-                    {"notice": "Vérifie ton email avant de continuer."},
+                    {"notice": "Fais vérifier ton identité dans le coffre avant de continuer."},
                     status=403,
                 )
             )

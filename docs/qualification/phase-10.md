@@ -100,3 +100,13 @@ cette session. `verify-release` reste BLOCKED, code 2. La performance sous limit
 matériel assistif, email réel, indépendance, supervision/entretien/backups/alertes et
 restauration indépendante RPO/RTO restent non validés. PostgreSQL 17.11 local ne valide pas
 le minimum 17.12 enregistré pour la production. Aucun déploiement ni tirage réel n'est exécuté.
+
+## Complément sans email — 16 novembre 2026
+
+Le [rapport du parcours sans email](email-free-enrollment-2026-11-16.md) et
+[ADR-0013](../adr/0013-independent-email-free-enrollment.md) complètent ces résultats historiques.
+Le restore révoque aussi les codes et rôles d'approbation restaurés pour ne pas ressusciter
+une clé/code révoqué après le snapshot. Maintenance, registre externe, scellement/durabilité
+et contrôle des sauvegardes restent requis. Le rôle réel **Independent vault operator est
+NON ATTRIBUÉ** ; ses clés synthétiques n'établissent aucune nomination ni indépendance.
+Voir [les critères de production actuels](production-readiness.md), toujours BLOCKED.

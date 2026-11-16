@@ -94,3 +94,18 @@ Employer « personne à qui tu offres », « tes trois souhaits », « à recevo
 | C14 | Renvoi borné et timeout ambigu hors fenêtre ; retry avec payload identique ; attribution inchangée |
 | C15 | Purge de chaque famille ; suppressions rejouées après ancien backup ; clés restaurables séparément |
 | C16 | Alertes neutres, sauvegarde ancienne détectée ; RPO/RTO mesurés ; revue indépendante consignée |
+
+## Décision utilisateur du 16 novembre — participation sans email
+
+Pour un participant sans boîte personnelle, une invitation privée WhatsApp peut ouvrir une
+demande d'inscription. Le lien seul ne connecte personne. Le rôle indépendant du coffre doit
+vérifier le vrai participant et sa demande précise ; seul son navigateur reçoit ensuite son
+code personnel. L'option de session mémorisée et le code sauvegardé permettent les retours sans
+email ni création manuelle de compte. Le code n'est affiché qu'à sa création/remplacement et
+n'est jamais visible dans le tableau de bord organisateur. Une perte requiert une nouvelle
+vérification indépendante, sans modification du tirage. Les messages de groupe restent généraux.
+
+Les conditions d'identité email des phases historiques sont donc complétées par cette méthode
+explicite ; elles ne deviennent pas une connexion par nom/lien possédé par l'organisateur.
+Le rôle de vérification est **NON ATTRIBUÉ**. L'authentification forte de l'organisateur reste
+celle du parcours existant. Détails, limites et portes d'activation : ADR-0013 et son runbook.

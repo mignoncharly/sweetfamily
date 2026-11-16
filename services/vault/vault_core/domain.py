@@ -27,6 +27,11 @@ from .secrets import encrypt
 
 
 def identity_for(email):
+    if email is None:
+        if not settings.WHATSAPP_ENROLLMENT_ENABLED:
+            raise ValueError("L'inscription sans email n'est pas activée par le coffre.")
+        user = get_user_model().objects.create_user(username=uuid.uuid4().hex)
+        return VerifiedIdentity.objects.create(user=user, email=None)
     email = EmailField().clean(email)
     identity = VerifiedIdentity.objects.filter(email=email).first()
     if identity:
@@ -109,6 +114,10 @@ def invite(member):
         token_digest=hashlib.sha256(token.encode()).hexdigest(),
         expires_at=now + timedelta(days=7),
     )
+    if member.identity.email is None:
+        # The public reference is not a login capability. Only the participant's
+        # approved, browser-bound claim can consume this invitation.
+        return invitation
     url = f"{settings.PUBLIC_ORIGIN}/join/{token}"
     queue_mail(
         "Noël Secret — invitation",
@@ -162,9 +171,9 @@ def apply_command(message):
         ids = set()
         for data in payload["members"]:
             member_fields(data)
-            email = EmailField().clean(data["email"])
+            email = EmailField().clean(data["email"]) if data["email"] is not None else None
             name = data["display_name"].strip().casefold()
-            if email in emails or name in names or data["id"] in ids:
+            if (email is not None and email in emails) or name in names or data["id"] in ids:
                 raise ValueError("Noms d'affichage et emails doivent être distincts.")
             emails.add(email)
             names.add(name)
@@ -218,7 +227,12 @@ def apply_command(message):
         member = Membership.objects.select_for_update().get(pk=payload["member_id"], event=event)
         if member.claimed_at is not None:
             raise ValueError("Identité déjà revendiquée.")
-        identity = identity_for(payload["email"])
+        # Reissuing a non-authenticating reference must not create another identity.
+        identity = (
+            member.identity
+            if payload["email"] is None and member.identity.email is None
+            else identity_for(payload["email"])
+        )
         if Membership.objects.filter(event=event, identity=identity).exclude(pk=member.pk).exists():
             raise ValueError("Email déjà utilisé dans cet événement.")
         member.identity = identity

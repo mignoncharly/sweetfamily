@@ -215,3 +215,9 @@ Voir [exploitation](docs/runbooks/operations.md), [restauration](docs/runbooks/r
 [incident](docs/runbooks/incident.md), [déploiement et remise](docs/runbooks/deployment.md),
 [guide organisateur](docs/user-guides/organizer.md) et [guide participant](docs/user-guides/participant.md).
 Aucun déploiement, DNS, email réel ou qualification de l'indépendance n'est effectué par ces commandes.
+
+Le parcours participant sans email (invitation WhatsApp privée, premier accès vérifié
+indépendamment, code personnel et session mémorisée) est décrit dans
+[ADR-0013](docs/adr/0013-independent-email-free-enrollment.md). Le rôle indépendant reste
+**NON ATTRIBUÉ** et la production **BLOCKED** ; voir la
+[préparation aux vrais utilisateurs](docs/qualification/production-readiness.md).

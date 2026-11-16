@@ -340,3 +340,44 @@ L’onglet privé visible interroge ce statut toutes les 15 secondes et au retou
 Une annulation retire le contenu de la page et la révélation ; les nouvelles requêtes de contenu
 et mutations sont refusées immédiatement par le serveur. Une panne réseau ne prouve aucun nouvel
 état. Le produit ne peut pas révoquer la connaissance d’un cadeau déjà vu ou copié.
+
+## Extension du 16 novembre 2026 : inscription sans email
+
+Voir ADR-0013 et runbooks/independent-enrollment.md. Le parcours email décrit plus haut reste
+inchangé. Le flag WHATSAPP_ENROLLMENT_ENABLED est false par défaut dans les deux services.
+Quand il est activé, les objets roster gardent exactement leurs clés, mais email peut être
+JSON null : adresses non null distinctes, plusieurs null autorisés. Aucun email factice et
+aucune conversion implicite d'une identité déjà revendiquée. Le formulaire HTML transforme
+son champ vide en null. La correction avant revendication peut renouveler l'invitation sans
+créer une seconde identité sans email. La correction après revendication reste refusée.
+
+| Route coffre | Effet |
+|---|---|
+| GET /accounts/enroll/{member_uuid}/ | Invitation nominative non authentifiante ; aperçu sans mutation |
+| POST même route | Confirmation explicite + CSRF ; crée une demande liée au navigateur, jamais une session authentifiée |
+| GET /accounts/enrollment/ | État de la seule demande liée à la session de ce navigateur ; comparaison et référence |
+| POST /accounts/enrollment/ | Activation après approbation signée indépendante ; consommation atomique et code affiché une fois |
+| GET/POST /accounts/personal-code/ | Connexion par code à forte entropie ; option explicite remember |
+| GET/POST /accounts/personal-access/ | Remplacement exigeant le code actuel ; nouvelle génération, autres sessions invalidées |
+
+Sans flag, ces routes renvoient 404. Les POST ont CSRF et limitations partagées SQL/allauth :
+connexion 30/minute/IP et 10/10 minutes par empreinte de code, demandes/activations 60/10 minutes/IP,
+remplacement 5/10 minutes par compte ; au plus 20 demandes par invitation/heure. Les clés du cache
+restent HMACées. GET ne revendique rien ; une demande ne déplace/réinitialise jamais un compte.
+
+La référence partageable se construit à partir de l'UUID public du membre et de VAULT_ORIGIN.
+Elle ne contient aucun secret d'accès. Elle est distribuée manuellement en message privé, pas
+en liste d'accès dans le groupe. Elle cesse de permettre une inscription après activation.
+Le secret navigateur et le code permanent ne sont retournés ni aux commandes du portail ni
+aux projections. Ces dernières conservent leur liste fermée, sans champ supplémentaire.
+
+L'approbation n'a aucun endpoint HTTP. Un rôle EnrollmentVerifier explicitement attribué signe
+une attestation limitée à l'origine, la demande, sa comparaison et cinq minutes ; une commande
+opérateur l'importe avec le registre indépendant. Aucun rôle n'est attribué par défaut. Après
+import, quinze minutes au maximum pour activer depuis le bon navigateur. Le rôle de commande
+portail n'autorise ni approbation ni récupération d'identité revendiquée.
+
+Sans email : aucun courrier ou payload de notification n'est créé. Le résultat reste HELD
+avant durabilité ; sa notification interne devient IN_APP après libération. NONE dans le suivi
+portail signifie absence de notification email, jamais preuve de livraison. La disponibilité
+et la révélation privée suivent les mêmes contrôles de session, manifeste et scellement.

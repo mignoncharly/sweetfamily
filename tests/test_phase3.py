@@ -79,6 +79,7 @@ def run_service_cases(role, case_files=None):
                                     "tests/cases/notification_cases.py",
                                     "tests/cases/participant_cases.py",
                                     "tests/cases/qualification_cases.py",
+                                    "tests/cases/access_code_cases.py",
                                 ]
                                 if role == "vault"
                                 else ["tests/cases/portal_cases.py"]

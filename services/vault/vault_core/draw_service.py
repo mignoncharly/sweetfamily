@@ -1,7 +1,6 @@
 import hashlib
 from datetime import timedelta
 
-from allauth.account.models import EmailAddress
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Q
@@ -50,6 +49,8 @@ def invalidate(event):
 
 
 def eligible(event):
+    from .access_codes import verified_identity
+
     members = list(
         event.members.filter(active=True).select_related("identity__user").order_by("id")
     )
@@ -59,11 +60,9 @@ def eligible(event):
         if (
             member.claimed_at is None
             or not member.identity.user.is_active
-            or not EmailAddress.objects.filter(
-                user=member.identity.user, primary=True, verified=True
-            ).exists()
+            or not verified_identity(member.identity)
         ):
-            raise StateConflict("Chaque personne doit rejoindre et vérifier son email.")
+            raise StateConflict("Chaque personne doit rejoindre et faire vérifier son identité.")
         listing = Wishlist.objects.filter(member=member, state="VALIDATED").first()
         if listing is None:
             raise StateConflict("Chaque personne doit valider ses trois souhaits.")

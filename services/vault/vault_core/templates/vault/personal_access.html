@@ -1,0 +1,7 @@
+{% extends "allauth/layouts/base.html" %}{% block content %}
+<h1>Gérer mon code personnel</h1>
+<p>Le coffre ne peut pas réafficher ton ancien code. Pour le remplacer, saisis ton code actuel. Le remplacement déconnecte tes autres sessions.</p>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button>Remplacer mon code et déconnecter mes autres sessions</button></form>
+<p>Code perdu ? Contacte l'opérateur indépendant pour une nouvelle vérification. Le portail organisateur n'a pas d'action de réinitialisation.</p>
+<a href="/accounts/sessions/">Consulter mes sessions</a>
+{% endblock %}

@@ -5,7 +5,7 @@
 {% for member in members %}<article class="card"><h2>{{ member.event.title }}</h2><p>{{ member.display_name }} · {{ member.country }}</p><p>Rendez-vous le {% timezone member.event.timezone %}{{ member.event.celebration_at|date:"d/m/Y à H:i" }}{% endtimezone %}. Fuseau : {{ member.event.timezone }}.</p><p>État : {{ member.state_label }}. Consulte les règles pour suivre la préparation et la disponibilité du tirage.</p>
 <a href="/profile?event_id={{ member.event_id }}">Mon profil</a> · <a href="/wishlist?event_id={{ member.event_id }}">Mes trois souhaits</a> · <a href="/rules?event_id={{ member.event_id }}">Groupe et règles</a> · <a href="/private?event_id={{ member.event_id }}">Mon cadeau à préparer</a> · <a href="/notifications?event_id={{ member.event_id }}">Notifications et rappels</a> · <a href="/withdraw?event_id={{ member.event_id }}">Me retirer</a></article>{% empty %}
 <p>Aucun événement rejoint. Utilise ton invitation personnelle.</p>{% endfor %}
-<p><a href="/accounts/email/">Mon email</a> · <a href="/accounts/2fa/">Sécurité et passkey</a> ·
+<p>{% if personal_code_account %}<a href="/accounts/personal-access/">Mon code personnel</a> ·{% else %}<a href="/accounts/email/">Mon email</a> · <a href="/accounts/2fa/">Sécurité et passkey</a> ·{% endif %}
 <a href="/accounts/sessions/">Mes sessions</a> · <a href="/accounts/logout/">Déconnexion</a></p>
-{% else %}<p><a href="/accounts/login/code/">Me connecter par code email</a></p>{% endif %}
+{% else %}{% if whatsapp_enrollment %}<p><a href="/accounts/personal-code/">Me connecter avec mon code personnel</a></p>{% endif %}<p><a href="/accounts/login/code/">Me connecter par code email</a></p>{% endif %}
 <p>Les achats se font chez le marchand, à recevoir chez toi et à apporter au réveillon.</p>{% endblock %}

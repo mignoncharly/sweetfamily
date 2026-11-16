@@ -19,3 +19,14 @@ Chromium/Axe ; voir [rapport du 16 novembre](ubuntu-2026-11-16.md). Le PostgreSQ
 sur cet hôte ne valide pas le minimum de correctif de production 17.12. Les critères HTTPS,
 supervision/entretien planifié, stockage/alertes et restauration indépendante avec RPO/RTO
 restent ouverts en plus des critères manuels et d'indépendance ci-dessus.
+
+## Extension sans email — 16 novembre 2026
+
+| ID | État | Conséquence et preuve attendue |
+|---|---|---|
+| AUTH-01 | **BLOCKED / rôle NON ATTRIBUÉ** | Lien organisateur non authentifiant, demande liée au navigateur et approbation par signature distincte implémentés. Nommer le vérificateur indépendant, recetter son contrôle humain, protéger sa clé et les voies de récupération hors du contrôle de l'organisateur. Aucune attribution réelle n'est créée. |
+| PACKAGE-01 | Corrigé, requalification finale PASS | La première recette HTTPS du nouveau parcours a révélé un module de vérification absent de l'allowlist de distribution. Ajout au seul coffre et smoke import depuis le ZIP extrait, sans chemin de secours vers le dépôt. Les runs locaux précédents ne prouvaient pas ce chemin hébergé. Run final 20261116T143006Z-ae8bc273 et recette HTTPS synthétique 20261116T143416Z PASS ; voir le rapport du parcours sans email. |
+
+La [préparation production](production-readiness.md) reste la liste actuelle des portes non
+fermées. MAIL-01 concerne encore le parcours organisateur existant et tout email optionnel
+réellement retenu ; les participants sans email ne nécessitent aucun envoi de courrier.

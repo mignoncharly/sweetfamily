@@ -1,0 +1,5 @@
+{% extends "allauth/layouts/base.html" %}{% block content %}
+<h1>Reprendre mon espace avec mon code</h1>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button>Ouvrir mon espace personnel</button></form>
+<p>Première visite ? Utilise ton invitation privée. Code perdu ? Contacte directement l'opérateur indépendant du coffre pour refaire une vérification ; l'organisateur ne peut pas réinitialiser ton accès.</p>
+{% endblock %}

@@ -55,3 +55,17 @@ une base jetable, puis une récupération dans un autre processus. Il vérifie u
 postérieure au backup, une demande de compte supprimé, un résultat scellé inchangé et la
 rétention des envois restaurés. Il n'envoie aucun email réel. Ces preuves locales ne valent
 pas restauration indépendante de production ni garantie RPO/RTO.
+
+## Accès sans email (ADR-0013)
+
+La récupération d'une sauvegarde désactive désormais AccessCredential et EnrollmentVerifier,
+révoque les demandes/invitations sans email en attente et supprime les sessions. Une sauvegarde
+antérieure à un remplacement/révocation ne doit jamais réactiver le credential ou son approbateur.
+Ne pas contourner recover(restored=True) pour rétablir plus vite ces accès. La vérification
+courante recover(restored=False) conserve les accès courants ; elle n'est pas le chemin de restore.
+
+Après contrôle du registre, des tirages et de la reprise, l'opérateur indépendant examine les
+clés publiques du rôle puis les participants refont la vérification sur leur propre navigateur.
+Le [runbook d'inscription](independent-enrollment.md) donne les commandes de récupération, sans
+reset par l'organisateur ni nouveau tirage. Ce travail doit entrer dans l'exercice RPO/RTO réel ;
+les drills natifs automatisés ne prouvent pas un rétablissement de tous les participants en quatre heures.

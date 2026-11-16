@@ -147,6 +147,7 @@ ACCOUNT_CHANGE_EMAIL = True
 ACCOUNT_SESSION_REMEMBER = False
 SESSION_COOKIE_AGE = 43200
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+WHATSAPP_ENROLLMENT_ENABLED = os.environ.get("WHATSAPP_ENROLLMENT_ENABLED", "false") == "true"
 ACCOUNT_RATE_LIMITS = {"request_login_code": "60/m/ip,3/m/key", "login": "60/m/ip"}
 MFA_SUPPORTED_TYPES = ["totp", "recovery_codes", "webauthn"]
 MFA_PASSKEY_LOGIN_ENABLED = True

@@ -301,6 +301,17 @@ def recover(restored=True):
             purchase_value(purchase.member)
         # Fence pre-restore workers; never retry a sealed job.
         if restored:
+            # Never revive a stolen/rotated personal code or an old approved
+            # browser claim from a pre-revocation SQL backup. Recovery requires
+            # a fresh independent check and preserves all sealed assignments.
+            model("AccessCredential").objects.update(enabled=False)
+            model("EnrollmentVerifier").objects.update(enabled=False)
+            model("EnrollmentClaim").objects.filter(revoked_at=None).update(
+                revoked_at=timezone.now()
+            )
+            model("Invitation").objects.filter(
+                member__identity__email__isnull=True, used_at=None, revoked_at=None
+            ).update(revoked_at=timezone.now())
             model("DrawJob").objects.exclude(state="SEALED").update(
                 state="FAILED_FINAL", failure_code="RESTORE_REVIEW", lease_until=None
             )
