@@ -247,7 +247,7 @@ def test_native_restore_repurges_deleted_event_preserves_sealed_draw_and_holds_m
     monkeypatch.setenv(
         "BACKUP_DB_PASSWORD", values[settings.SERVICE_ROLE.upper() + "_DB_ADMIN_PASSWORD"]
     )
-    monkeypatch.setenv("PG_BIN", str(tasks.ROOT / ".local/tools/postgresql/pgsql/bin"))
+    monkeypatch.setenv("PG_BIN", str(tasks.postgres_bin()))
     doomed = new_event()
     orphan = user("native-erasure@example.invalid")
     live = None

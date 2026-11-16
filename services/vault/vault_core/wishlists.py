@@ -219,13 +219,19 @@ def snapshot(wishlist, revision=None):
 
 def get_list(member):
     # Explicitly authorized read; GET must not create a list or slots.
-    return Wishlist.objects.filter(member=member).first()
+    listing = Wishlist.objects.filter(member=member).first()
+    if listing is not None:
+        # The caller already authorized and loaded this member (usually with its event).
+        # Reuse it for envelope AAD instead of reloading member/event during every read.
+        listing.member = member
+    return listing
 
 
 @transaction.atomic
 def save_list(member, expected_revision, items, validate=False):
     event = PrivateEvent.objects.select_for_update().get(pk=member.event_id)
     current_member = Membership.objects.get(pk=member.pk, active=True, claimed_at__isnull=False)
+    current_member.event = event
     if event.state not in {"OPEN", "CONFIRMING", "READY", "DRAWN"}:
         raise Conflict("La liste n'est pas modifiable dans cet état.")
     if type(expected_revision) is not int:

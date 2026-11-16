@@ -1,19 +1,19 @@
 # État de l'implémentation
 
 Mise à jour : 16 novembre 2026. Phases 1 à 9 et travaux locaux de phase 10 implémentés ; recette email externe différée.
-Adaptation explicite : aucun Docker, GitHub Actions, dépôt distant ou CI/CD.
+Adaptation explicite : aucun Docker, GitHub Actions ou CI/CD. Remise dans le dépôt GitHub fourni.
 
 | Phase | État | Preuves / conditions |
 |---|---|---|
 | 1 — Produit, accès, invariants | Livrée | product-spec.md, permissions.md, threat-model.md, data-map.md et ADR |
-| 2 — Socle et environnements | Livrée et testée sur Windows | Locks, deux bases/processus, outils vérifiés, distributions, runner manuel ; qualification/phase-2.md |
+| 2 — Socle et environnements | Livrée et testée sur Windows et Ubuntu | Locks, deux bases/processus, outils vérifiés, distributions, runner manuel ; qualification/phase-2.md |
 | 3 — Identité et invitations | Livrée et testée localement | Modèles/migrations, email/MFA/sessions allauth, commandes/projections signées, invitations, profils ; qualification/phase-3.md |
 | 4 — Souhaits et pays | Livrée et testée localement | Éditeur/API, budgets entiers, marchands approuvés, historiques AES-GCM et conflits ; qualification/phase-4.md |
 | 5 — Tirage et états | Livrée et testée localement | Manifeste/consentements, moteur exact, baux, scellement et backup restauré ; qualification/phase-5.md |
 | 6 — Protection et espaces privés | Livrée et testée localement | Révélation personnelle, achats chiffrés, migration/enveloppes, rotation et dump portail sans canaris ; qualification/phase-6.md |
 | 7 — Notifications et suivi | Code livré / essais locaux PASS ; recette externe différée | Outbox/baux, Resend + Zoho EU, webhooks, rappels et préférences ; chemin .env gtech à fournir plus tard ; qualification/phase-7.md |
 | 8 — Interfaces et cas de vie | Livrée et testée localement, recette assistive complémentaire en phase 9 | Deux espaces HTML, reprise, masquage, transfert, copie annuelle, Chromium + 32 scans Axe ; archivage/purge lié à phase 10 ; qualification/phase-8.md |
-| 9 — Qualification du produit complet | Requalification locale PASS ; sortie globale BLOCKED | Run phase 10 : 69 cas racine, 51 portail/162 coffre imbriqués, Chromium/Axe ; T18/T20 PASS_LOCAL. P95, T22/T23 et indépendance ouverts ; qualification/phase-10.md. Le rapport phase 9 conserve ses mesures historiques. |
+| 9 — Qualification du produit complet | Requalification locale PASS ; sortie globale BLOCKED | Run Ubuntu : 74 cas racine, 51 portail/164 coffre imbriqués, Chromium/Axe ; T18/T20 PASS_LOCAL. P95 282,695/327,425 ms en mode 2 × 2, PASS_LOCAL ; performance de production, T22/T23 et indépendance ouverts ; qualification/ubuntu-2026-11-16.md. Le rapport phase 9 conserve ses mesures historiques. |
 | 10 — Exploitation et remise | Travaux locaux livrés ; sortie production BLOCKED | Maintenance, purge J+90, registre externe, replay/restauration native, backups par rôle, supervision et guides ; qualification/phase-10.md. Déploiement, indépendance, RPO/RTO et recettes externes restent ouverts. |
 
 ## Périmètre réellement livré
@@ -35,12 +35,11 @@ en phase 5, après la validation des souhaits.
 Les rapports de qualification indiquent commandes et résultats effectivement exécutés, y compris
 la chaîne locale de vrais processus, PostgreSQL et SMTP Mailpit. Aucune livraison à une vraie
 boîte, aucun matériel WebAuthn et aucune restauration indépendante de production ne sont revendiqués.
-Le parcours Windows local est testé ; Linux et une seconde machine restent non qualifiés.
+Le parcours Ubuntu est désormais vérifié indépendamment ; voir [recette du 16 novembre](qualification/ubuntu-2026-11-16.md). Une infrastructure de production et un opérateur indépendants restent non qualifiés.
 
-Le dossier .git de l'ancienne session appartient au compte CodexSandboxOffline. L'OS refuse sa
-réattribution ; les lectures Git utilisent une exception safe.directory limitée à la commande.
-La correction des permissions pour les écritures Git peut nécessiter un administrateur Windows.
-Aucune configuration Git globale n'a été modifiée.
+Dans l'ancienne session Windows, le dossier .git avait un problème de propriétaire. Ce blocage
+ne s'applique pas au clone Ubuntu fourni. Le remote a été inspecté avant les modifications ;
+la remise utilise un commit/push normal, sans force et sans configuration Git globale.
 
 La garantie contre l'administrateur du portail reste NON VALIDÉE en production : elle exige
 un opérateur indépendant du coffre, les domaines/comptes/récupérations/accès réellement isolés,
@@ -147,3 +146,25 @@ Les résultats historiques de phase 9 ci-dessus restent ceux de leur ancien run.
 Aucun hébergement, DNS, email réel ou planificateur de production n'a été activé. L'objectif
 p95, le matériel assistif, les boîtes de recette, l'opérateur indépendant, le stockage externe
 et RPO/RTO de production restent à qualifier. La phase 10 globale n'est pas déclarée terminée.
+
+## Requalification Ubuntu et performance locale
+
+Le [rapport Ubuntu](qualification/ubuntu-2026-11-16.md) et son résumé JSON remplacent les mesures
+Windows comme preuve de cette source sur Linux. Setup local avec Python 3.13.11 et locks,
+deux clusters SCRAM privés 55431/55433, Mailpit vérifié, ports configurables et wrappers
+opérateur portables. Le [runbook Ubuntu](runbooks/ubuntu.md) donne les commandes exécutées.
+
+Le coffre passe d'un p95 initial 1 174,947 ms à 327,425 ms lors du run final ; le portail
+mesure 282,695 ms. Optimisations de rendu et relations SQL, puis deux processus natifs × deux
+threads par rôle, avec cycle d'arrêt et panne d'enfant testés. Quatre threads au total comme
+avant ; aucune donnée privée mise en cache, aucun contrôle de maintenance/scellement retiré.
+La cible loopback locale est atteinte. Le défaut compatible Windows reste un processus × quatre
+threads ; il faut sélectionner le mode Ubuntu explicitement. Ce résultat n'est pas une mesure
+HTTPS ni une promesse de capacité avec limites CPU/RAM de production.
+
+Qualification finale : 74 tests racine, 51/164 cas de service imbriqués, deux parcours Chromium
+et 33 scans Axe sans violation, recovery/purge, audits et distributions PASS. `verify-release`
+reste BLOCKED. PostgreSQL système 17.11 est conservé pour le local et ne valide pas le minimum
+17.12 enregistré pour la production. Aucun service partagé, DNS ou email réel n'est activé.
+Téléphone/lecteur d'écran/zoom, email autorisé, indépendance, HTTPS/supervision/maintenance
+planifiée/backups/alertes, restauration indépendante RPO/RTO et revue externe restent ouverts.

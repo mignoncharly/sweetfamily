@@ -77,14 +77,14 @@ def delivered(pattern):
     started=time.monotonic()
     deadline=started+60
     while time.monotonic()<deadline:
-        with urllib.request.urlopen("http://127.0.0.1:18025/api/v1/messages") as response:
+        with urllib.request.urlopen(os.environ["NOEL_MAILPIT_URL"]+"/api/v1/messages") as response:
             messages=json.load(response)["messages"]
         for row in messages:
             if row["From"]["Address"]!=os.environ["NOTIFICATION_FROM_EMAIL"]:
                 continue
             if not any(address["Address"]==os.environ["SMOKE_EMAIL"] for address in row["To"]):
                 continue
-            message_url="http://127.0.0.1:18025/api/v1/message/"+row["ID"]
+            message_url=os.environ["NOEL_MAILPIT_URL"]+"/api/v1/message/"+row["ID"]
             with urllib.request.urlopen(message_url) as response:
                 detail=json.load(response)
             match=re.search(pattern,detail["Text"])
@@ -122,12 +122,12 @@ wishes=[{"slot":i,"title":"Canari souhait prive "+str(i),
     "url":"https://www.amazon.fr/dp/ARTICLE"+str(i),"price_eur_cents":4999,
     "currency":"EUR","price_date":timezone.localdate().isoformat(),"note":"",
     "exact_model":False,"equivalent_ok":True} for i in (1,2,3)]
-url="http://127.0.0.1:8002/api/me/wishlist?event_id="+event_id
+url=os.environ["NOEL_VAULT_URL"]+"/api/me/wishlist?event_id="+event_id
 request=urllib.request.Request(url,data=json.dumps({"revision":0,"wishes":wishes}).encode(),
                                headers=headers,method="PUT")
 with urllib.request.urlopen(request) as response:
     assert json.load(response)["revision"]==1
-request=urllib.request.Request("http://127.0.0.1:8002/api/me/wishlist/validate?event_id="+event_id,
+request=urllib.request.Request(os.environ["NOEL_VAULT_URL"]+"/api/me/wishlist/validate?event_id="+event_id,
     data=b'{"revision":1}',headers=headers,method="POST")
 with urllib.request.urlopen(request) as response:
     assert json.load(response)["state"]=="VALIDATED"

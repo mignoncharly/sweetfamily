@@ -1,3 +1,4 @@
+import os
 import re
 import time
 
@@ -50,7 +51,9 @@ def login_through_mailpit(client, actor):
     code = None
     deadline = time.monotonic() + 60
     while time.monotonic() < deadline and not code:
-        with urllib.request.urlopen("http://127.0.0.1:18025/api/v1/messages") as response:
+        with urllib.request.urlopen(
+            os.environ["NOEL_MAILPIT_URL"] + "/api/v1/messages"
+        ) as response:
             messages = json.load(response)["messages"]
         for row in messages:
             if row["From"]["Address"] != settings.DEFAULT_FROM_EMAIL:
@@ -58,7 +61,7 @@ def login_through_mailpit(client, actor):
             if not any(address["Address"] == actor.email for address in row["To"]):
                 continue
             with urllib.request.urlopen(
-                "http://127.0.0.1:18025/api/v1/message/" + row["ID"]
+                os.environ["NOEL_MAILPIT_URL"] + "/api/v1/message/" + row["ID"]
             ) as response:
                 body = json.load(response)["Text"]
             match = re.search(r"\b[A-Z0-9]{4}-[A-Z0-9]{4}\b", body)

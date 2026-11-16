@@ -29,3 +29,12 @@ de preuves, dépendances verrouillées, artefacts de chaque rôle, procédures e
 Une répétition synthétique réelle doit précéder la création sans fixtures de l'événement
 familial. Ne jamais déclencher un tirage réel ni afficher une attribution pour illustrer
 un guide. `verify-release` demeure bloqué tant que les critères essentiels sont ouverts.
+
+## Recette Ubuntu avant déploiement
+
+Le [runbook Ubuntu](ubuntu.md) couvre l'inventaire d'un hôte partagé, l'installation dans le
+projet, les ports disponibles et la qualification native. La recette utilise PostgreSQL 17.11
+installé sur l'hôte ; ce résultat ne valide pas le minimum de correctif de production 17.12
+consigné dans `infra/tool-versions.json`. Aucun paquet partagé n'a été remplacé.
+Le [rapport Ubuntu](../qualification/ubuntu-2026-11-16.md) distingue mesures locales et critères
+externes. Aucun endpoint public, domaine ou superviseur de production n'a été ajouté.

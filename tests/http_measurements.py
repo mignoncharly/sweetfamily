@@ -27,6 +27,26 @@ def measure(role, port, actors, paths):
             client.force_login(actor)
             cookies.append("; ".join(k + "=" + v.value for k, v in client.cookies.items()))
 
+    if os.environ.get("NOEL_HTTP_PROFILE") == "true":
+        import cProfile
+        import io
+        import pstats
+
+        # A separate serial sample locates Python costs without distorting HTTP load.
+        profiler = cProfile.Profile()
+        profiler.enable()
+        for index in range(20):
+            response = Client().get(paths[index % 2], HTTP_COOKIE=cookies[(index % 2) * 20])
+            assert response.status_code == 200
+        profiler.disable()
+        stream = io.StringIO()
+        pstats.Stats(profiler, stream=stream).strip_dirs().sort_stats("cumtime").print_stats(50)
+        (Path(os.environ["NOEL_QUALIFICATION_DIR"]) / f"cpu-{role}.txt").write_text(
+            stream.getvalue(), encoding="utf8"
+        )
+
+    profiles = []
+
     def request(index):
         path = paths[(index % 40) // 20]
         started = time.perf_counter()
@@ -36,10 +56,19 @@ def measure(role, port, actors, paths):
         with urllib.request.urlopen(req, timeout=30) as response:
             response.read()
             assert response.status == 200
-        return (time.perf_counter() - started) * 1000
+        elapsed = (time.perf_counter() - started) * 1000
+        if timing := response.headers.get("Server-Timing"):
+            row = dict(
+                (entry.strip().split(";dur=")[0], float(entry.split(";dur=")[1]))
+                for entry in timing.split(",")
+            )
+            row["queue_network_ms"] = max(0, elapsed - row["app"])
+            profiles.append(row)
+        return elapsed
 
     with ThreadPoolExecutor(max_workers=40) as pool:
         list(pool.map(request, range(40)))
+        profiles.clear()
         start = time.perf_counter()
         samples = list(pool.map(request, range(400)))
     samples.sort()
@@ -56,9 +85,25 @@ def measure(role, port, actors, paths):
         "wall_seconds": round(time.perf_counter() - start, 3),
         "target_p95_ms": 500,
         "transport": "HTTP loopback, new connection per request, no TLS",
-        "server_threads": 4,
+        "server_threads": tasks.WEB_THREADS * tasks.WEB_PROCESSES,
+        "server_processes": tasks.WEB_PROCESSES,
+        "threads_per_process": tasks.WEB_THREADS,
         "resource_limits": "none; local host, not reference production sizes",
     }
+    if profiles:
+        data["profile"] = {
+            key: {
+                "p50": round(sorted(row[key] for row in profiles)[len(profiles) // 2], 3),
+                "p95": round(
+                    sorted(row[key] for row in profiles)[math.ceil(0.95 * len(profiles)) - 1], 3
+                ),
+            }
+            for key in profiles[0]
+        }
+        data["profile_note"] = (
+            "Test-only timing middleware; inclusive template time; queue_network_ms "
+            "is HTTP minus WSGI app, including client scheduling/network/server queue."
+        )
     data["target_met"] = data["p95_http_ms"] < 500
     import psycopg
     from django.conf import settings

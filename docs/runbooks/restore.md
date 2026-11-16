@@ -1,5 +1,8 @@
 # Restauration en maintenance
 
+Sous Ubuntu, utiliser `.venv/bin/python` au lieu de `python` ; les binaires PostgreSQL sont
+résolus par le runner, avec `NOEL_PG_BIN` si nécessaire. Voir [recette Ubuntu](ubuntu.md).
+
 Ne jamais relancer le web ou les workers sur un ancien backup en configuration normale.
 Arrêter les processus concernés, fermer leur entrée réseau et définir
 `FORCE_MAINTENANCE=true` **avant** de connecter le service à la base restaurée. L'option

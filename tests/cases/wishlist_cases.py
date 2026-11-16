@@ -352,3 +352,61 @@ def test_two_real_database_requests_cannot_overwrite_each_other():
         member.event.delete()
         for identity in VerifiedIdentity.objects.filter(id__in=identities):
             identity.user.delete()
+
+
+def test_wishlist_renderer_preserves_django_widget_semantics_and_escapes_values():
+    from html.parser import HTMLParser
+
+    from django import forms
+    from django.forms.renderers import DjangoTemplates
+    from vault_core.wishlist_forms import WishlistRenderer
+
+    class Parsed(HTMLParser):
+        def __init__(self, text):
+            super().__init__(convert_charrefs=True)
+            self.elements, self.text = [], []
+            self.feed(str(text))
+
+        def handle_starttag(self, tag, attrs):
+            self.elements.append((tag, dict(attrs)))
+
+        def handle_data(self, data):
+            self.text.append(data)
+
+    for widget, value in [
+        (forms.TextInput(), '"><script>alert(1)</script>'),
+        (forms.HiddenInput(), '"><script>alert(1)</script>'),
+        (forms.DateInput(), "2026-12-24"),
+        (forms.CheckboxInput(), True),
+        (forms.CheckboxInput(), False),
+        (forms.Textarea(), '</textarea><script>alert("x")</script>'),
+        (forms.Select(choices=[("FR", "France")]), "FR"),
+    ]:
+        attrs = {
+            "id": "id_form-0-field",
+            "aria-invalid": "true",
+            "aria-describedby": "id_form-0-field_error",
+            "data-note": '"<&',
+        }
+        expected = Parsed(widget.render("form-0-field", value, attrs, DjangoTemplates()))
+        actual = Parsed(widget.render("form-0-field", value, attrs, WishlistRenderer()))
+        assert actual.elements == expected.elements
+        assert "".join(actual.text).strip() == "".join(expected.text).strip()
+        assert not any(tag == "script" for tag, _ in actual.elements)
+
+
+def test_invalid_wishlist_form_retains_labels_error_relationships_and_entered_values():
+    from vault_core.wishlist_forms import WishForm
+
+    # Prefix all submitted keys as a browser does.
+    form = WishForm(
+        {"wish-title": '<script>alert("x")</script>', "wish-price": "50.00"}, prefix="wish"
+    )
+    assert not form.is_valid()
+    html = str(form.as_p())
+    assert '<label for="id_wish-price">' in html
+    assert 'aria-describedby="id_wish-price_error"' in html
+    assert 'id="id_wish-price_error"' in html
+    assert 'aria-invalid="true"' in html
+    assert "<script>" not in html and "&lt;script&gt;" in html
+    assert "50.00" in html

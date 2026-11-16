@@ -5,6 +5,13 @@ La mise en production reste bloquée par les critères de qualification externes
 [Avancement](docs/implementation-status.md) · [Contrat produit](docs/product-spec.md) ·
 [Contrats API](docs/api-contracts.md).
 
+## Démarrer sur Ubuntu
+
+Lire [le runbook Ubuntu sur hôte partagé](docs/runbooks/ubuntu.md) avant tout bootstrap.
+Il donne les commandes vérifiées, ports privés, environnement Python local, outils à empreintes,
+recette synthétique et arrêt sans intervenir sur les autres applications.
+Résultats : [qualification Ubuntu](docs/qualification/ubuntu-2026-11-16.md).
+
 ## Démarrer sur Windows
 
 Prérequis : Python 3.13, uv et Node.js 24/npm. Aucun Docker, dépôt GitHub ou pipeline CI/CD requis.

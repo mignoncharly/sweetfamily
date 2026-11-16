@@ -288,7 +288,7 @@ def test_real_encrypted_native_backup_restores_before_release_and_is_idempotent(
         "BACKUP_ENCRYPTION_KEY": values["VAULT_BACKUP_KEY"],
         "BACKUP_DB_USER": "noel_admin",
         "BACKUP_DB_PASSWORD": values["VAULT_DB_ADMIN_PASSWORD"],
-        "PG_BIN": str(tasks.ROOT / ".local/tools/postgresql/pgsql/bin"),
+        "PG_BIN": str(tasks.postgres_bin()),
     }
     try:
         run_one_draw()

@@ -70,7 +70,7 @@ for member in event.members.all():
     headers={"Content-Type":"application/json","Cookie":cookie,
              "X-CSRFToken":client.cookies[settings.CSRF_COOKIE_NAME].value}
     data={"manifest_version":event.manifest_version,"manifest_digest":event.manifest_digest}
-    request=urllib.request.Request(f"http://127.0.0.1:8002/api/me/roster-consent?event_id={event.id}",
+    request=urllib.request.Request(os.environ["NOEL_VAULT_URL"]+f"/api/me/roster-consent?event_id={event.id}",
         data=json.dumps(data).encode(),headers=headers,method="POST")
     with urllib.request.urlopen(request) as response:
         assert json.load(response)["accepted"]

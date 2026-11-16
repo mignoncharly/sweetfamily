@@ -40,8 +40,10 @@ l’organisateur ; le domaine et l’opérateur du coffre doivent être qualifi�
 ## T18/T20 — restauration, replay et purge (phase 10)
 
 La restauration native du résultat scellé et la réconciliation simulée des envois sont testées.
-Il reste à implémenter puis exercer la maintenance avant reprise, le registre de suppressions,
-la repurge d’un backup ancien et la réconciliation des envois restaurés avant relance des workers.
+La phase 10 implémente et exerce localement la maintenance avant reprise, le registre de
+suppressions, la repurge d’un backup ancien et la rétention des envois restaurés. Le drill est
+répété sur Ubuntu ; voir [rapport](ubuntu-2026-11-16.md). La restauration indépendante et la
+réconciliation réelle du fournisseur restent ouvertes avant relance des workers en production.
 Restaurer sur une base isolée, envois suspendus et SMTP de simulation ; vérifier une attribution
 inchangée, les anciennes notifications ambiguës sans renvoi aveugle et les identifiants purgés
 qui ne ressuscitent pas. Mesurer RPO/RTO sur cet exercice, sans les déduire du test de scellement.

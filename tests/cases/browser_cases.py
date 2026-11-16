@@ -47,7 +47,9 @@ def test_native_browser_forms_and_accessibility():
         paths = [f"/wishlist?event_id={e.id}" for e in (event, second)]
         fixture = {"role": role, "event_id": str(event.id)}
     fixture["email"] = actor.email if role == "control" else member.identity.email
-    port = {"control": 8201, "vault": 8202}[role]
+    port = tasks.BROWSER_PORTS[role]
+    fixture["origin"] = f"http://127.0.0.1:{port}"
+    tasks.require_free_port(port)
     fixture["cookies"] = [
         {
             "name": cookie.key,
@@ -59,14 +61,26 @@ def test_native_browser_forms_and_accessibility():
         for cookie in client.cookies.values()
     ]
     process = subprocess.Popen(
-        [str(tasks.PYTHON), str(tasks.ROOT / "scripts/serve.py"), role, str(port)],
+        [
+            str(tasks.PYTHON),
+            str(
+                tasks.ROOT
+                / (
+                    "tests/profile_server.py"
+                    if os.environ.get("NOEL_HTTP_PROFILE") == "true"
+                    else "scripts/serve.py"
+                )
+            ),
+            role,
+            str(port),
+        ],
         env=os.environ.copy(),
         cwd=tasks.ROOT,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
     try:
-        port = {"control": 8201, "vault": 8202}[role]
+        port = tasks.BROWSER_PORTS[role]
         for _ in range(100):
             if process.poll() is not None:
                 raise AssertionError("UI server exited")
@@ -89,6 +103,8 @@ def test_native_browser_forms_and_accessibility():
                 else [member.identity.user, second.members.first().identity.user],
                 paths,
             )
+        if os.environ.get("NOEL_HTTP_ONLY") == "true":
+            return
         env = os.environ.copy() | {
             "NOEL_UI_FIXTURE": json.dumps(fixture),
             "NOEL_TEST_PYTHON": str(tasks.PYTHON),

@@ -4,7 +4,6 @@ import argparse
 import os
 import subprocess
 import sys
-from pathlib import Path
 
 import tasks
 
@@ -68,7 +67,7 @@ print(json.dumps({'notification_id':str(item.id),'submission':item.state,'delive
 
 
 def main():
-    if Path(sys.executable).resolve() != tasks.PYTHON.resolve():
+    if not tasks.in_project_environment():
         raise SystemExit(subprocess.call([str(tasks.PYTHON), __file__, *sys.argv[1:]]))
     parser = argparse.ArgumentParser()
     parser.add_argument("--role", required=True, choices=tasks.ROLES)

@@ -4,10 +4,13 @@ import argparse
 import hashlib
 import json
 import os
+import platform
 import secrets
 import shutil
+import socket
 import subprocess
 import sys
+import tarfile
 import time
 import urllib.request
 import zipfile
@@ -16,13 +19,79 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL = ROOT / ".local"
 ROLES = ("control", "vault")
-DB_PORTS = {"control": 55431, "vault": 55432}
-WEB_PORTS = {"control": 8001, "vault": 8002}
+
+
+def local_option(name, default):
+    # Ports/tool paths are non-secret and shared by every subprocess, including tests.
+    values = {}
+    if (ROOT / ".env").exists():
+        values = dict(
+            line.split("=", 1)
+            for line in (ROOT / ".env").read_text().splitlines()
+            if line and not line.startswith("#") and "=" in line
+        )
+    return os.environ.get("NOEL_" + name, values.get(name, default))
+
+
+DB_PORTS = {
+    role: int(local_option(role.upper() + "_DB_PORT", port))
+    for role, port in (("control", 55431), ("vault", 55433))
+}
+WEB_PORTS = {
+    role: int(local_option(role.upper() + "_WEB_PORT", port))
+    for role, port in (("control", 8001), ("vault", 8002))
+}
+BROWSER_PORTS = {
+    role: int(local_option(role.upper() + "_BROWSER_PORT", port))
+    for role, port in (("control", 8201), ("vault", 8202))
+}
+WEB_PROCESSES = int(local_option("WEB_PROCESSES", 1))
+WEB_THREADS = int(local_option("WEB_THREADS", 4))
+if not (1 <= WEB_PROCESSES <= 4 and 1 <= WEB_THREADS <= 16 and WEB_PROCESSES * WEB_THREADS <= 16):
+    raise ValueError("Local web limits: 1..4 processes, 1..16 total threads")
+MAILPIT_HTTP_PORT = int(local_option("MAILPIT_HTTP_PORT", 18025))
+MAILPIT_SMTP_PORT = int(local_option("MAILPIT_SMTP_PORT", 11025))
+
+
+def require_free_port(port):
+    with socket.socket() as sock:
+        if os.name != "nt":
+            # Like the native server, allow a recently closed socket in TIME_WAIT.
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        try:
+            sock.bind(("127.0.0.1", port))
+        except OSError:
+            raise Blocked(
+                f"Loopback port {port} is occupied; select an unused project port"
+            ) from None
+
+
+def postgres_bin():
+    configured = local_option("PG_BIN", "")
+    if configured:
+        return Path(configured)
+    if os.name == "nt":
+        return Path(executable("pg_dump")).parent
+    for version in ("17", "18"):
+        folder = Path(f"/usr/lib/postgresql/{version}/bin")
+        if (folder / "postgres").exists():
+            return folder
+    found = shutil.which("postgres")
+    if found:
+        return Path(found).parent
+    raise Blocked("PostgreSQL 17/18 binaries missing; set NOEL_PG_BIN")
+
+
 PYTHON = ROOT / ".venv" / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
 
 
 class Blocked(RuntimeError):
     pass
+
+
+def in_project_environment():
+    # Resolving the interpreter symlink confuses system Python with a POSIX venv.
+    return Path(sys.prefix).resolve() == PYTHON.parent.parent.resolve()
 
 
 def run(args, **kwargs):
@@ -34,6 +103,13 @@ def executable(name):
     portable = LOCAL / "tools/postgresql/pgsql/bin" / (name + suffix)
     if portable.exists():
         return str(portable)
+    if name in {"postgres", "initdb", "pg_ctl", "pg_dump", "pg_restore", "psql"}:
+        if os.name != "nt":
+            candidate = postgres_bin() / name
+            if candidate.exists():
+                return str(candidate)
+    if name == "uv" and (LOCAL / "tools/uv").exists():
+        return str(LOCAL / "tools/uv")
     found = shutil.which(name)
     if found:
         return found
@@ -94,17 +170,34 @@ def ensure_auth_secrets():
                     serialization.Encoding.Raw, serialization.PublicFormat.Raw
                 )
             ).decode()
+    if os.name != "nt":
+        (ROOT / ".env").chmod(0o600)
     (ROOT / ".env").write_text("\n".join(f"{key}={value}" for key, value in values.items()) + "\n")
 
 
 def environment(role):
     values = config()
-    env = os.environ.copy()
+    operator_only = {
+        "OPERATIONS_KEY",
+        "OPERATIONS_DIRECTORY",
+        "BACKUP_ENCRYPTION_KEY",
+        "BACKUP_DB_USER",
+        "BACKUP_DB_PASSWORD",
+        "PG_BIN",
+        "PGPASSWORD",
+    }
+    env = {
+        key: value
+        for key, value in os.environ.items()
+        if key not in operator_only and not key.startswith(("CONTROL_", "VAULT_"))
+    }
     env.update(
         {
             "APP_ENV": "local",
             "SERVICE_ROLE": role,
             "DEBUG": "false",
+            "WEB_PROCESSES": str(WEB_PROCESSES),
+            "WEB_THREADS": str(WEB_THREADS),
             "ENABLE_SYNTHETIC_DIAGNOSTICS": "false",
             "DJANGO_SECRET_KEY": values[f"{role.upper()}_DJANGO_SECRET_KEY"],
             "DB_NAME": f"noel_{role}",
@@ -117,7 +210,10 @@ def environment(role):
                 role.upper() + "_DB_CONN_MAX_AGE", os.environ.get("DB_CONN_MAX_AGE", "60")
             ),
             "ALLOWED_HOSTS": "127.0.0.1,localhost,testserver",
-            "MAILPIT_SMTP_PORT": "11025",
+            "MAILPIT_SMTP_PORT": str(MAILPIT_SMTP_PORT),
+            "NOEL_MAILPIT_URL": f"http://127.0.0.1:{MAILPIT_HTTP_PORT}",
+            "NOEL_CONTROL_URL": f"http://127.0.0.1:{WEB_PORTS['control']}",
+            "NOEL_VAULT_URL": f"http://127.0.0.1:{WEB_PORTS['vault']}",
             "SMTP_HOST": values.get(role.upper() + "_SMTP_HOST", "smtp.zoho.eu"),
             "SMTP_PORT": values.get(role.upper() + "_SMTP_PORT", "465"),
             "SMTP_USE_SSL": values.get(role.upper() + "_SMTP_USE_SSL", "true"),
@@ -162,8 +258,8 @@ def environment(role):
             "DRAW_ACTIVE_KEY": values.get("VAULT_ACTIVE_MASTER_KEY", "v1")
             if role == "vault"
             else "v1",
-            "VAULT_ORIGIN": "http://127.0.0.1:8002",
-            "CONTROL_ORIGIN": "http://127.0.0.1:8001",
+            "VAULT_ORIGIN": f"http://127.0.0.1:{WEB_PORTS['vault']}",
+            "CONTROL_ORIGIN": f"http://127.0.0.1:{WEB_PORTS['control']}",
             "PROJECTION_KEY": values.get(
                 "CONTROL_PROJECTION_PUBLIC_KEY"
                 if role == "control"
@@ -191,8 +287,10 @@ def manage(role, *args, **kwargs):
     )
 
 
-def bootstrap():
-    LOCAL.mkdir(exist_ok=True)
+def init_local():
+    LOCAL.mkdir(mode=0o700, exist_ok=True)
+    if os.name != "nt":
+        LOCAL.chmod(0o700)
     if not (ROOT / ".env").exists():
         values = {"APP_ENV": "local"}
         for role in ROLES:
@@ -201,12 +299,17 @@ def bootstrap():
         fd = os.open(ROOT / ".env", os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
         with os.fdopen(fd, "w") as stream:
             stream.write("".join(f"{key}={value}\n" for key, value in values.items()))
-    run(["uv", "sync", "--locked", "--group", "control", "--group", "vault"])
-    if Path(sys.executable).resolve() != PYTHON.resolve():
+    ensure_auth_secrets()
+    print("Local-only secrets generated/reused without displaying them")
+
+
+def bootstrap():
+    run([executable("uv"), "sync", "--locked", "--group", "control", "--group", "vault"])
+    if not in_project_environment():
         run([PYTHON, Path(__file__).resolve(), "bootstrap"])
         return
     run([executable("npm"), "--prefix", "frontend", "ci"])
-    ensure_auth_secrets()
+    init_local()
     install_tools()
     assets()
     print("Local-only secrets generated/reused without displaying them")
@@ -244,6 +347,10 @@ def install_tools():
             archive.unlink()
         if hashlib.sha256(binary.read_bytes()).hexdigest() != pg["binary_sha256"]:
             raise Blocked("PostgreSQL binary integrity mismatch")
+    else:
+        version = run([executable("postgres"), "--version"], capture_output=True, text=True)
+        if not any(f"PostgreSQL) {major}." in version.stdout for major in (17, 18)):
+            raise Blocked("Local qualification requires PostgreSQL 17/18")
     mailpit()
 
 
@@ -252,6 +359,7 @@ def db_up():
     from psycopg import sql
 
     values = config()
+    LOCAL.mkdir(mode=0o700, exist_ok=True)
     for role in ROLES:
         data = LOCAL / f"pg-{role}"
         admin_password = values[f"{role.upper()}_DB_ADMIN_PASSWORD"]
@@ -259,7 +367,10 @@ def db_up():
         if not (data / "PG_VERSION").exists():
             pw = LOCAL / f"{role}-init-password"
             try:
-                pw.write_text(admin_password, encoding="utf-8")
+                with os.fdopen(
+                    os.open(pw, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), "w"
+                ) as stream:
+                    stream.write(admin_password)
                 run(
                     [
                         executable("initdb"),
@@ -284,6 +395,15 @@ def db_up():
             stderr=subprocess.DEVNULL,
         )
         if status.returncode:
+            require_free_port(DB_PORTS[role])
+            # A private Unix socket directory prevents access through /tmp sockets.
+            socket_dir = LOCAL / f"socket-{role}"
+            socket_dir.mkdir(mode=0o700, exist_ok=True)
+            options = f"-h 127.0.0.1 -p {DB_PORTS[role]}"
+            if os.name != "nt":
+                import shlex
+
+                options += " -k " + shlex.quote(str(socket_dir))
             run(
                 [
                     executable("pg_ctl"),
@@ -292,7 +412,7 @@ def db_up():
                     "-l",
                     LOCAL / f"pg-{role}.log",
                     "-o",
-                    f"-h 127.0.0.1 -p {DB_PORTS[role]}",
+                    options,
                     "-w",
                     "start",
                 ],
@@ -306,6 +426,8 @@ def db_up():
             password=admin_password,
             autocommit=True,
         ) as conn:
+            if Path(conn.execute("SHOW data_directory").fetchone()[0]).resolve() != data.resolve():
+                raise Blocked("Refusing to configure a foreign PostgreSQL cluster")
             username = f"noel_{role}"
             if not conn.execute("SELECT 1 FROM pg_roles WHERE rolname=%s", (username,)).fetchone():
                 conn.execute(
@@ -345,29 +467,42 @@ def migrate():
 def mailpit():
     versions = json.loads((ROOT / "infra/tool-versions.json").read_text())
     tool = versions["mailpit"]
+    if os.name != "nt":
+        key = f"{platform.system().lower()}-{platform.machine().lower()}"
+        if key not in tool.get("platforms", {}):
+            raise Blocked(f"No verified Mailpit download for {key}")
+        tool = tool["platforms"][key]
     folder = LOCAL / "tools"
     binary = folder / ("mailpit.exe" if os.name == "nt" else "mailpit")
     if binary.exists():
         if hashlib.sha256(binary.read_bytes()).hexdigest() != tool["binary_sha256"]:
             raise Blocked("Mailpit binary hash mismatch")
         return binary
-    if os.name != "nt":
-        raise Blocked(
-            "Install pinned Mailpit for your platform and update verified binary checksum"
-        )
-    folder.mkdir(exist_ok=True)
-    archive = folder / "mailpit.zip"
-    urllib.request.urlretrieve(tool["url"], archive)
-    if hashlib.sha256(archive.read_bytes()).hexdigest() != tool["archive_sha256"]:
-        archive.unlink()
-        raise Blocked("Mailpit archive hash mismatch")
-    with zipfile.ZipFile(archive) as z:
-        binary.write_bytes(z.read("mailpit.exe"))
-    archive.unlink()
-    return mailpit()
+    folder.mkdir(parents=True, exist_ok=True)
+    archive = folder / ("mailpit.zip" if os.name == "nt" else "mailpit.tar.gz")
+    try:
+        urllib.request.urlretrieve(tool["url"], archive)
+        if hashlib.sha256(archive.read_bytes()).hexdigest() != tool["archive_sha256"]:
+            raise Blocked("Mailpit archive hash mismatch")
+        if os.name == "nt":
+            with zipfile.ZipFile(archive) as z:
+                content = z.read("mailpit.exe")
+        else:
+            with tarfile.open(archive) as tar:
+                content = tar.extractfile("mailpit").read()
+        if hashlib.sha256(content).hexdigest() != tool["binary_sha256"]:
+            raise Blocked("Mailpit binary hash mismatch")
+        binary.write_bytes(content)
+        binary.chmod(0o700)
+    finally:
+        archive.unlink(missing_ok=True)
+    return binary
 
 
 def dev_up():
+    for port in (*WEB_PORTS.values(), MAILPIT_HTTP_PORT, MAILPIT_SMTP_PORT):
+        require_free_port(port)
+    os.environ["NOEL_TEST_MAILPIT"] = "true"
     db_up()
     migrate()
     assets()
@@ -378,9 +513,9 @@ def dev_up():
             [
                 binary,
                 "--listen",
-                "127.0.0.1:18025",
+                f"127.0.0.1:{MAILPIT_HTTP_PORT}",
                 "--smtp",
-                "127.0.0.1:11025",
+                f"127.0.0.1:{MAILPIT_SMTP_PORT}",
                 "--label",
                 "Simulation",
             ],
@@ -404,9 +539,12 @@ def dev_up():
                 )
             )
         print(
-            "Control http://127.0.0.1:8001/health/ready | Vault http://127.0.0.1:8002/health/ready"
+            f"Control http://127.0.0.1:{WEB_PORTS['control']} | Vault http://127.0.0.1:{WEB_PORTS['vault']}"
         )
-        print("Mailpit Simulation http://127.0.0.1:18025 | Ctrl+C stops apps/workers/Mailpit")
+        print(
+            f"Mailpit Simulation http://127.0.0.1:{MAILPIT_HTTP_PORT}"
+            " | Ctrl+C stops apps/workers/Mailpit"
+        )
         while all(p.poll() is None for p in processes):
             time.sleep(1)
         raise RuntimeError("A supervised process exited")
@@ -548,7 +686,7 @@ def build_prod():
         run([PYTHON, "-c", code], env=env)
         result = run(
             [
-                "uv",
+                executable("uv"),
                 "export",
                 "--locked",
                 "--no-default-groups",
@@ -577,7 +715,7 @@ def build_prod():
                 z, "noel_delivery.py", (ROOT / "packages/contracts/noel_delivery.py").read_bytes()
             )
             zip_entry(z, "noel_ui.py", (ROOT / "packages/contracts/noel_ui.py").read_bytes())
-            for module in ("noel_operations.py", "noel_backups.py"):
+            for module in ("noel_operations.py", "noel_backups.py", "noel_server.py"):
                 zip_entry(z, module, (ROOT / "packages/contracts" / module).read_bytes())
             for p in sorted((ROOT / "frontend/dist").glob("*")):
                 zip_entry(z, "assets/" + p.name, p.read_bytes())
@@ -606,7 +744,13 @@ def artifact_check():
                     raise RuntimeError("Forbidden production artifact entry")
                 if name.startswith((f"{other}_core/", f"{other}_project/")):
                     raise RuntimeError("Foreign service packaged")
-            for required in ("serve.py", "requirements.txt", "assets/main.js", "assets/main.css"):
+            for required in (
+                "serve.py",
+                "noel_server.py",
+                "requirements.txt",
+                "assets/main.js",
+                "assets/main.css",
+            ):
                 if required not in z.namelist():
                     raise RuntimeError("Incomplete production artifact")
             if "--hash=sha256:" not in z.read("requirements.txt").decode():
@@ -617,7 +761,7 @@ def artifact_check():
 def browser_checks():
     db_up()
     assets()
-    os.environ["NOEL_TEST_MAILPIT"] = "true"
+    os.environ.update(NOEL_TEST_MAILPIT="true", NOEL_HTTP_ONLY="false", NOEL_HTTP_PROFILE="false")
     sys.path.insert(0, str(ROOT / "tests"))
     from test_phase3 import run_service_cases
 
@@ -627,6 +771,31 @@ def browser_checks():
         "Native browser journeys and Axe checks passed; manual "
         "assistive-technology review remains required"
     )
+
+
+def benchmark_http(profile=False):
+    from datetime import UTC, datetime
+
+    db_up()
+    directory = (
+        LOCAL
+        / "performance"
+        / (datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ") + ("-profile" if profile else "-http"))
+    )
+    directory.mkdir(parents=True)
+    os.environ.update(
+        NOEL_TEST_MAILPIT="true",
+        NOEL_QUALIFICATION_DIR=str(directory),
+        NOEL_HTTP_ONLY="true",
+        NOEL_HTTP_PROFILE="true" if profile else "false",
+    )
+    sys.path.insert(0, str(ROOT / "tests"))
+    from test_phase3 import run_service_cases
+
+    for role in ROLES:
+        run_service_cases(role, ["tests/cases/browser_cases.py"])
+        print((directory / f"http-{role}.json").read_text())
+    print("Synthetic HTTP evidence: " + str(directory))
 
 
 def verify_release():
@@ -646,10 +815,11 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("task")
     task = parser.parse_args().task
-    if PYTHON.exists() and Path(sys.executable).resolve() != PYTHON.resolve():
+    if PYTHON.exists() and not in_project_environment():
         raise SystemExit(subprocess.call([str(PYTHON), str(Path(__file__).resolve()), task]))
     tasks = {
         "bootstrap": bootstrap,
+        "init-local": init_local,
         "db-up": db_up,
         "install-tools": install_tools,
         "db-down": db_down,
@@ -659,6 +829,8 @@ def main():
         "test-draw": test_draw,
         "test-e2e": browser_checks,
         "check-accessibility": browser_checks,
+        "benchmark-http": benchmark_http,
+        "profile-http": lambda: benchmark_http(profile=True),
         "qualify": lambda: run([PYTHON, ROOT / "scripts/qualify.py"]),
         "verify-release": verify_release,
         "test-unit": lambda: test("unit"),

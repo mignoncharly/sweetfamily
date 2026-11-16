@@ -1,6 +1,9 @@
 # Développement local
 
-Prérequis Windows x64 : Python 3.13, uv, Node.js 24/npm. Aucun Docker ou pipeline CI/CD.
+Parcours Windows x64 et Ubuntu 24.04 x86_64, sans Docker ou pipeline CI/CD.
+Pour Ubuntu sur hôte partagé, suivre d'abord [le runbook natif](runbooks/ubuntu.md) : inventaire,
+installation locale explicite, Python 3.13.11, Node 22.23.2/npm et PostgreSQL 17.11 observés.
+Les instructions Windows historiques ci-dessous utilisent Python 3.13, uv et Node.js 24/npm.
 Versions et intégrité : uv.lock, frontend/package-lock.json, infra/tool-versions.json.
 
 ## Installation et commandes
@@ -11,17 +14,21 @@ python scripts/tasks.py dev-up démarre les clusters PostgreSQL, applique les mi
 compile/collecte les assets, puis supervise deux apps, deux workers et Mailpit.
 Ctrl+C arrête le groupe de processus. python scripts/tasks.py db-down arrête les bases sans les effacer.
 
-Les clusters .local/pg-control et .local/pg-vault utilisent PostgreSQL 17.12, SCRAM et des secrets
-distincts. Ils écoutent uniquement 127.0.0.1:55431 et :55432. Les rôles applicatifs ne sont ni
+Les clusters .local/pg-control et .local/pg-vault utilisent SCRAM et des secrets distincts :
+PostgreSQL 17.12 dans le parcours Windows, 17.11 observé lors de la recette Ubuntu.
+Ils écoutent uniquement 127.0.0.1:55431 et :55433 par défaut (ancien coffre Windows : :55432,
+à configurer explicitement). Les rôles applicatifs ne sont ni
 superutilisateurs ni créateurs de bases/rôles ; ils ne peuvent pas lire l'autre instance.
 Aucune installation PostgreSQL système n'est modifiée. Les données locales restent synthétiques.
 
 Applications : http://127.0.0.1:8001/ et :8002/ ; Mailpit « Simulation » : :18025, SMTP :11025.
 Le worker coffre traite invitations/challenges SQL chiffrés et projections signées périodiques.
-Le worker portail est un socle supervisé. La livraison externe reste indisponible avant phase 7.
+Le worker portail est un socle supervisé. Les adaptateurs externes sont implémentés ; leur recette réelle reste différée.
 
-Le téléchargement automatique des outils est Windows x64. Linux exige ses binaires et empreintes
-correspondants, et n'a pas été qualifié. Ne pas présenter cette limitation comme un succès Linux.
+Les téléchargements Mailpit Windows x64 et Linux x86_64 sont vérifiés par empreinte.
+Sur Ubuntu, les binaires PostgreSQL existants sont utilisés avec des clusters appartenant au
+projet ; aucun paquet ou service système n'est remplacé. La recette et ses limites sont dans
+[qualification Ubuntu](qualification/ubuntu-2026-11-16.md).
 
 ## Configuration
 
@@ -81,13 +88,13 @@ le QR TOTP généré par la bibliothèque. Aucun matériel passkey réel n'est e
 Les archives ne constituent pas une autorisation de production ; le backend email hors local
 reste explicitement bloqué. L'indépendance du coffre n'est pas démontrée sur un ordinateur partagé.
 
-test-e2e/check-accessibility (phase 8), backup-drill (phase 10) et
-verify-release (phases 9–10) retournent BLOCKED/code 2 tant que ces fonctions sont absentes.
-Le Makefile expose les mêmes cibles, mais n'a pas été exécuté directement sans make installé.
+test-e2e/check-accessibility et backup-drill sont implémentés et exécutent des contrôles réels.
+verify-release retourne BLOCKED/code 2 sur les critères de production encore ouverts.
+Le Makefile expose les mêmes cibles ; utiliser `.venv/bin/python scripts/tasks.py <cible>` sous Ubuntu.
 
-## Dépôt Windows
+## Ancien dépôt Windows — contexte historique
 
-.git appartient au compte de l'ancienne sandbox. Les lectures sont possibles avec
+Dans l’ancienne session Windows, .git appartenait au compte de la sandbox. Les lectures sont possibles avec
 git -c safe.directory=C:/noel ; le scanner applique cette exception à sa seule commande.
 L'OS a refusé la correction de propriétaire. Faire corriger les ACL par un administrateur
 pour les écritures Git si nécessaire ; aucune configuration Git globale n'a été modifiée.

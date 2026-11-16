@@ -1,0 +1,688 @@
+{
+  "schema": 1,
+  "scope": "Synthetic native Ubuntu local qualification only; release blocked",
+  "run": "20261116T121211Z-59ab2e86",
+  "source_sha256": "ac0ff2f302731eb99aa67cb448da9ff1dfe7206643188fccef90b73627786daf",
+  "report_sha256": "6304359b01e04b7ecba7a6cf4d8301ca4eb58d27e19ad12ed5485c3d1b0e85e5",
+  "environment": {
+    "platform": "Linux-6.8.0-139-generic-x86_64-with-glibc2.39",
+    "python": "3.13.11 (main, Jan 28 2026, 00:01:45) [Clang 21.1.4 ]",
+    "postgresql": "postgres (PostgreSQL) 17.11 (Ubuntu 17.11-1.pgdg24.04+2)",
+    "node": "v22.23.2",
+    "db_ports": {
+      "control": 55431,
+      "vault": 55433
+    },
+    "web_threads_per_process": 2,
+    "web_processes": 2
+  },
+  "stages": [
+    {
+      "stage": "checks",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 6.062
+    },
+    {
+      "stage": "security",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 2.419
+    },
+    {
+      "stage": "artifacts",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 4.762
+    },
+    {
+      "stage": "tests",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 91.512
+    },
+    {
+      "stage": "browser-load",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 44.592
+    },
+    {
+      "stage": "engine-timing",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 4.158
+    }
+  ],
+  "test_counts": {
+    "browser-control.xml": {
+      "tests": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    "browser-vault.xml": {
+      "tests": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    "root.xml": {
+      "tests": 74,
+      "failed": 0,
+      "skipped": 0
+    },
+    "service-control.xml": {
+      "tests": 51,
+      "failed": 0,
+      "skipped": 0
+    },
+    "service-vault.xml": {
+      "tests": 164,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "axe": {
+    "control": {
+      "scans": 11,
+      "violations": 0,
+      "sha256": "554874a34a5c3e2fdb7cd828a595b2461f311cd58eee80577d43b8d271e2a2ab"
+    },
+    "vault": {
+      "scans": 22,
+      "violations": 0,
+      "sha256": "b1719ff61d8cd2ddd716af28975367c14db9851d5c99986b875d02e31f4b9a26"
+    }
+  },
+  "http": {
+    "control": {
+      "role": "control",
+      "events": 2,
+      "sessions_per_event": 20,
+      "concurrency": 40,
+      "requests": 400,
+      "warmup_requests": 40,
+      "p50_http_ms": 176.065,
+      "p95_http_ms": 282.695,
+      "max_http_ms": 309.25,
+      "wall_seconds": 1.932,
+      "target_p95_ms": 500,
+      "transport": "HTTP loopback, new connection per request, no TLS",
+      "server_threads": 4,
+      "server_processes": 2,
+      "threads_per_process": 2,
+      "resource_limits": "none; local host, not reference production sizes",
+      "target_met": true,
+      "terminated_backends": 6,
+      "reconnect_after_backend_termination": "PASS",
+      "db_conn_max_age": 60,
+      "db_health_checks": true
+    },
+    "vault": {
+      "role": "vault",
+      "events": 2,
+      "sessions_per_event": 20,
+      "concurrency": 40,
+      "requests": 400,
+      "warmup_requests": 40,
+      "p50_http_ms": 234.415,
+      "p95_http_ms": 327.425,
+      "max_http_ms": 353.774,
+      "wall_seconds": 2.418,
+      "target_p95_ms": 500,
+      "transport": "HTTP loopback, new connection per request, no TLS",
+      "server_threads": 4,
+      "server_processes": 2,
+      "threads_per_process": 2,
+      "resource_limits": "none; local host, not reference production sizes",
+      "target_met": true,
+      "terminated_backends": 6,
+      "reconnect_after_backend_termination": "PASS",
+      "db_conn_max_age": 60,
+      "db_health_checks": true
+    }
+  },
+  "engine": {
+    "participants": 20,
+    "runs": 3,
+    "seconds": [
+      1.34577,
+      1.399108,
+      1.376
+    ],
+    "limit_seconds": 60,
+    "target_met": true,
+    "exclusions": 0,
+    "rng": "production secrets.randbelow",
+    "host": {
+      "os": "Linux",
+      "architecture": "x86_64",
+      "python": "3.13.11",
+      "logical_cpus": 6
+    },
+    "resource_limits": "none; not the proposed 2 vCPU/4 GiB production configuration"
+  },
+  "local_status": "PASS",
+  "release_status": "BLOCKED",
+  "release_blockers": [
+    "T22: Automated Chromium/Axe/keyboard/reflow only; real phone, assistive technology and manual zoom review not executed.",
+    "T23: Live Zoho/Resend delivery deferred by user. Configure secrets locally, verify authorised sender domain and run staging_mail probe to authorised inbox, retaining delivery facts.",
+    "Independent security review and genuinely separated operator/domains/keys/recovery not demonstrated"
+  ],
+  "evidence_sha256": {
+    "artifacts.log": "2afaa0ce5cab2245b55120d696b9682dd512200c2b7c4c8ce88d5640fe2da397",
+    "browser-control.xml": "11aece18dc372f2086e9133b24660ea16e31ddcca0eca012a493c81b612ef94e",
+    "browser-load.log": "89a9152152179551e477f3e4ec2bc46d45b9c12e8324bfc1d6d184b3558d993f",
+    "browser-vault.xml": "fa688cf861967c904393de5be5eacd48a307f75781df2174d6b1de0f06356c85",
+    "checks.log": "d8b6ab91f32848fa91aadf24d660c67c1c6610f50fb817d88a85d7d77cad5dd4",
+    "engine-timing.log": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "engine.json": "ec0d55657714a93ff929ecff611ddeab9b4f6b259e515702b75d6124a7141bc3",
+    "http-control.json": "9c226c3b731166d7f4b7c37ac170a96940464c0cdf43cc7eeb6a0257cac1103e",
+    "http-vault.json": "252402696aeaa335407dc6d3ff14f2ca628b4369a46e1893326d98866c5cc0f1",
+    "root.xml": "5837c4662cae7f6cbbf20239f3056b2e3ef69a027636833c5b251cd2aed064b1",
+    "security.log": "316b83a3c1e67357fd7926483f8308908bc2ee6def1db77af49f9e9a43a0a07e",
+    "service-control.xml": "8f1f1c23f7a09b9dd5da454e65d6846640482fb9a90cb7529c70d8fb12075e59",
+    "service-vault.xml": "460c14dff2e7f7a88d1f26c21fe9e10fe7a04c12aab4b4ebb5e240df6863268b",
+    "smtp-local.json": "53fb77df76dab1378dfeec869ffed8b87c19dbf4af455d52b24d78d16c889cd2",
+    "tests.log": "335ff90ef407e1ec9d2a6792013c9fbf688a7bc19fad0fdc009cd56dfde0f91e"
+  },
+  "exploratory_measurements": {
+    "ubuntu-baseline": {
+      "control": {
+        "role": "control",
+        "events": 2,
+        "sessions_per_event": 20,
+        "concurrency": 40,
+        "requests": 400,
+        "warmup_requests": 40,
+        "p50_http_ms": 414.144,
+        "p95_http_ms": 459.88,
+        "max_http_ms": 483.775,
+        "wall_seconds": 4.195,
+        "target_p95_ms": 500,
+        "transport": "HTTP loopback, new connection per request, no TLS",
+        "server_threads": 4,
+        "resource_limits": "none; local host, not reference production sizes",
+        "target_met": true,
+        "terminated_backends": 5,
+        "reconnect_after_backend_termination": "PASS",
+        "db_conn_max_age": 60,
+        "db_health_checks": true
+      },
+      "vault": {
+        "role": "vault",
+        "events": 2,
+        "sessions_per_event": 20,
+        "concurrency": 40,
+        "requests": 400,
+        "warmup_requests": 40,
+        "p50_http_ms": 1096.805,
+        "p95_http_ms": 1174.947,
+        "max_http_ms": 1227.596,
+        "wall_seconds": 11.056,
+        "target_p95_ms": 500,
+        "transport": "HTTP loopback, new connection per request, no TLS",
+        "server_threads": 4,
+        "resource_limits": "none; local host, not reference production sizes",
+        "target_met": false,
+        "terminated_backends": 5,
+        "reconnect_after_backend_termination": "PASS",
+        "db_conn_max_age": 60,
+        "db_health_checks": true
+      }
+    },
+    "profile-before": {
+      "control": {
+        "role": "control",
+        "events": 2,
+        "sessions_per_event": 20,
+        "concurrency": 40,
+        "requests": 400,
+        "warmup_requests": 40,
+        "p50_http_ms": 432.784,
+        "p95_http_ms": 473.507,
+        "max_http_ms": 494.399,
+        "wall_seconds": 4.36,
+        "target_p95_ms": 500,
+        "transport": "HTTP loopback, new connection per request, no TLS",
+        "server_threads": 4,
+        "resource_limits": "none; local host, not reference production sizes",
+        "profile": {
+          "app": {
+            "p50": 39.677,
+            "p95": 53.698
+          },
+          "sql": {
+            "p50": 30.243,
+            "p95": 43.421
+          },
+          "template": {
+            "p50": 3.801,
+            "p95": 7.9
+          },
+          "queries": {
+            "p50": 12.0,
+            "p95": 12.0
+          },
+          "queue_network_ms": {
+            "p50": 393.426,
+            "p95": 432.921
+          }
+        },
+        "profile_note": "Test-only timing middleware; inclusive template time; queue_network_ms is HTTP minus WSGI app, including client scheduling/network/server queue.",
+        "target_met": true,
+        "terminated_backends": 5,
+        "reconnect_after_backend_termination": "PASS",
+        "db_conn_max_age": 60,
+        "db_health_checks": true
+      },
+      "vault": {
+        "role": "vault",
+        "events": 2,
+        "sessions_per_event": 20,
+        "concurrency": 40,
+        "requests": 400,
+        "warmup_requests": 40,
+        "p50_http_ms": 1160.386,
+        "p95_http_ms": 1249.98,
+        "max_http_ms": 1301.056,
+        "wall_seconds": 11.597,
+        "target_p95_ms": 500,
+        "transport": "HTTP loopback, new connection per request, no TLS",
+        "server_threads": 4,
+        "resource_limits": "none; local host, not reference production sizes",
+        "profile": {
+          "app": {
+            "p50": 112.167,
+            "p95": 139.259
+          },
+          "sql": {
+            "p50": 37.482,
+            "p95": 67.576
+          },
+          "template": {
+            "p50": 106.554,
+            "p95": 192.123
+          },
+          "queries": {
+            "p50": 12.0,
+            "p95": 12.0
+          },
+          "queue_network_ms": {
+            "p50": 1045.809,
+            "p95": 1127.965
+          }
+        },
+        "profile_note": "Test-only timing middleware; inclusive template time; queue_network_ms is HTTP minus WSGI app, including client scheduling/network/server queue.",
+        "target_met": false,
+        "terminated_backends": 5,
+        "reconnect_after_backend_termination": "PASS",
+        "db_conn_max_age": 60,
+        "db_health_checks": true
+      }
+    },
+    "profile-after-single-process": {
+      "control": {
+        "role": "control",
+        "events": 2,
+        "sessions_per_event": 20,
+        "concurrency": 40,
+        "requests": 400,
+        "warmup_requests": 40,
+        "p50_http_ms": 440.497,
+        "p95_http_ms": 518.423,
+        "max_http_ms": 535.741,
+        "wall_seconds": 4.508,
+        "target_p95_ms": 500,
+        "transport": "HTTP loopback, new connection per request, no TLS",
+        "server_threads": 4,
+        "resource_limits": "none; local host, not reference production sizes",
+        "profile": {
+          "app": {
+            "p50": 40.094,
+            "p95": 60.314
+          },
+          "sql": {
+            "p50": 30.217,
+            "p95": 49.414
+          },
+          "template": {
+            "p50": 3.649,
+            "p95": 7.944
+          },
+          "queries": {
+            "p50": 12.0,
+            "p95": 12.0
+          },
+          "queue_network_ms": {
+            "p50": 401.715,
+            "p95": 470.472
+          }
+        },
+        "profile_note": "Test-only timing middleware; inclusive template time; queue_network_ms is HTTP minus WSGI app, including client scheduling/network/server queue.",
+        "target_met": false,
+        "terminated_backends": 5,
+        "reconnect_after_backend_termination": "PASS",
+        "db_conn_max_age": 60,
+        "db_health_checks": true
+      },
+      "vault": {
+        "role": "vault",
+        "events": 2,
+        "sessions_per_event": 20,
+        "concurrency": 40,
+        "requests": 400,
+        "warmup_requests": 40,
+        "p50_http_ms": 585.232,
+        "p95_http_ms": 632.972,
+        "max_http_ms": 669.293,
+        "wall_seconds": 5.892,
+        "target_p95_ms": 500,
+        "transport": "HTTP loopback, new connection per request, no TLS",
+        "server_threads": 4,
+        "resource_limits": "none; local host, not reference production sizes",
+        "profile": {
+          "app": {
+            "p50": 55.723,
+            "p95": 71.791
+          },
+          "sql": {
+            "p50": 18.443,
+            "p95": 30.355
+          },
+          "template": {
+            "p50": 31.384,
+            "p95": 44.187
+          },
+          "queries": {
+            "p50": 10.0,
+            "p95": 10.0
+          },
+          "queue_network_ms": {
+            "p50": 529.065,
+            "p95": 574.579
+          }
+        },
+        "profile_note": "Test-only timing middleware; inclusive template time; queue_network_ms is HTTP minus WSGI app, including client scheduling/network/server queue.",
+        "target_met": false,
+        "terminated_backends": 5,
+        "reconnect_after_backend_termination": "PASS",
+        "db_conn_max_age": 60,
+        "db_health_checks": true
+      }
+    },
+    "one-process-eight-threads": {
+      "control": {
+        "role": "control",
+        "events": 2,
+        "sessions_per_event": 20,
+        "concurrency": 40,
+        "requests": 400,
+        "warmup_requests": 40,
+        "p50_http_ms": 445.73,
+        "p95_http_ms": 525.761,
+        "max_http_ms": 565.188,
+        "wall_seconds": 4.525,
+        "target_p95_ms": 500,
+        "transport": "HTTP loopback, new connection per request, no TLS",
+        "server_threads": 8,
+        "resource_limits": "none; local host, not reference production sizes",
+        "target_met": false,
+        "terminated_backends": 9,
+        "reconnect_after_backend_termination": "PASS",
+        "db_conn_max_age": 60,
+        "db_health_checks": true
+      },
+      "vault": {
+        "role": "vault",
+        "events": 2,
+        "sessions_per_event": 20,
+        "concurrency": 40,
+        "requests": 400,
+        "warmup_requests": 40,
+        "p50_http_ms": 651.045,
+        "p95_http_ms": 699.715,
+        "max_http_ms": 734.892,
+        "wall_seconds": 6.532,
+        "target_p95_ms": 500,
+        "transport": "HTTP loopback, new connection per request, no TLS",
+        "server_threads": 8,
+        "resource_limits": "none; local host, not reference production sizes",
+        "target_met": false,
+        "terminated_backends": 9,
+        "reconnect_after_backend_termination": "PASS",
+        "db_conn_max_age": 60,
+        "db_health_checks": true
+      }
+    },
+    "one-process-two-threads": {
+      "control": {
+        "role": "control",
+        "events": 2,
+        "sessions_per_event": 20,
+        "concurrency": 40,
+        "requests": 400,
+        "warmup_requests": 40,
+        "p50_http_ms": 359.67,
+        "p95_http_ms": 406.429,
+        "max_http_ms": 425.626,
+        "wall_seconds": 3.704,
+        "target_p95_ms": 500,
+        "transport": "HTTP loopback, new connection per request, no TLS",
+        "server_threads": 2,
+        "resource_limits": "none; local host, not reference production sizes",
+        "target_met": true,
+        "terminated_backends": 3,
+        "reconnect_after_backend_termination": "PASS",
+        "db_conn_max_age": 60,
+        "db_health_checks": true
+      },
+      "vault": {
+        "role": "vault",
+        "events": 2,
+        "sessions_per_event": 20,
+        "concurrency": 40,
+        "requests": 400,
+        "warmup_requests": 40,
+        "p50_http_ms": 449.534,
+        "p95_http_ms": 507.82,
+        "max_http_ms": 538.321,
+        "wall_seconds": 4.576,
+        "target_p95_ms": 500,
+        "transport": "HTTP loopback, new connection per request, no TLS",
+        "server_threads": 2,
+        "resource_limits": "none; local host, not reference production sizes",
+        "target_met": false,
+        "terminated_backends": 3,
+        "reconnect_after_backend_termination": "PASS",
+        "db_conn_max_age": 60,
+        "db_health_checks": true
+      }
+    },
+    "one-process-one-thread": {
+      "control": {
+        "role": "control",
+        "events": 2,
+        "sessions_per_event": 20,
+        "concurrency": 40,
+        "requests": 400,
+        "warmup_requests": 40,
+        "p50_http_ms": 405.572,
+        "p95_http_ms": 447.975,
+        "max_http_ms": 459.828,
+        "wall_seconds": 4.102,
+        "target_p95_ms": 500,
+        "transport": "HTTP loopback, new connection per request, no TLS",
+        "server_threads": 1,
+        "resource_limits": "none; local host, not reference production sizes",
+        "target_met": true,
+        "terminated_backends": 2,
+        "reconnect_after_backend_termination": "PASS",
+        "db_conn_max_age": 60,
+        "db_health_checks": true
+      },
+      "vault": {
+        "role": "vault",
+        "events": 2,
+        "sessions_per_event": 20,
+        "concurrency": 40,
+        "requests": 400,
+        "warmup_requests": 40,
+        "p50_http_ms": 492.648,
+        "p95_http_ms": 543.316,
+        "max_http_ms": 550.018,
+        "wall_seconds": 5.049,
+        "target_p95_ms": 500,
+        "transport": "HTTP loopback, new connection per request, no TLS",
+        "server_threads": 1,
+        "resource_limits": "none; local host, not reference production sizes",
+        "target_met": false,
+        "terminated_backends": 2,
+        "reconnect_after_backend_termination": "PASS",
+        "db_conn_max_age": 60,
+        "db_health_checks": true
+      }
+    },
+    "two-processes-two-threads": {
+      "control": {
+        "role": "control",
+        "events": 2,
+        "sessions_per_event": 20,
+        "concurrency": 40,
+        "requests": 400,
+        "warmup_requests": 40,
+        "p50_http_ms": 164.397,
+        "p95_http_ms": 211.972,
+        "max_http_ms": 220.496,
+        "wall_seconds": 1.76,
+        "target_p95_ms": 500,
+        "transport": "HTTP loopback, new connection per request, no TLS",
+        "server_threads": 4,
+        "server_processes": 2,
+        "threads_per_process": 2,
+        "resource_limits": "none; local host, not reference production sizes",
+        "target_met": true,
+        "terminated_backends": 6,
+        "reconnect_after_backend_termination": "PASS",
+        "db_conn_max_age": 60,
+        "db_health_checks": true
+      },
+      "vault": {
+        "role": "vault",
+        "events": 2,
+        "sessions_per_event": 20,
+        "concurrency": 40,
+        "requests": 400,
+        "warmup_requests": 40,
+        "p50_http_ms": 230.545,
+        "p95_http_ms": 390.995,
+        "max_http_ms": 414.599,
+        "wall_seconds": 2.491,
+        "target_p95_ms": 500,
+        "transport": "HTTP loopback, new connection per request, no TLS",
+        "server_threads": 4,
+        "server_processes": 2,
+        "threads_per_process": 2,
+        "resource_limits": "none; local host, not reference production sizes",
+        "target_met": true,
+        "terminated_backends": 6,
+        "reconnect_after_backend_termination": "PASS",
+        "db_conn_max_age": 60,
+        "db_health_checks": true
+      }
+    },
+    "profile-two-processes": {
+      "control": {
+        "role": "control",
+        "events": 2,
+        "sessions_per_event": 20,
+        "concurrency": 40,
+        "requests": 400,
+        "warmup_requests": 40,
+        "p50_http_ms": 156.251,
+        "p95_http_ms": 369.456,
+        "max_http_ms": 407.324,
+        "wall_seconds": 1.981,
+        "target_p95_ms": 500,
+        "transport": "HTTP loopback, new connection per request, no TLS",
+        "server_threads": 4,
+        "server_processes": 2,
+        "threads_per_process": 2,
+        "resource_limits": "none; local host, not reference production sizes",
+        "profile": {
+          "app": {
+            "p50": 17.113,
+            "p95": 21.067
+          },
+          "sql": {
+            "p50": 9.576,
+            "p95": 12.443
+          },
+          "template": {
+            "p50": 2.27,
+            "p95": 3.203
+          },
+          "queries": {
+            "p50": 12.0,
+            "p95": 12.0
+          },
+          "queue_network_ms": {
+            "p50": 139.418,
+            "p95": 351.855
+          }
+        },
+        "profile_note": "Test-only timing middleware; inclusive template time; queue_network_ms is HTTP minus WSGI app, including client scheduling/network/server queue.",
+        "target_met": true,
+        "terminated_backends": 7,
+        "reconnect_after_backend_termination": "PASS",
+        "db_conn_max_age": 60,
+        "db_health_checks": true
+      },
+      "vault": {
+        "role": "vault",
+        "events": 2,
+        "sessions_per_event": 20,
+        "concurrency": 40,
+        "requests": 400,
+        "warmup_requests": 40,
+        "p50_http_ms": 239.25,
+        "p95_http_ms": 294.167,
+        "max_http_ms": 318.377,
+        "wall_seconds": 2.455,
+        "target_p95_ms": 500,
+        "transport": "HTTP loopback, new connection per request, no TLS",
+        "server_threads": 4,
+        "server_processes": 2,
+        "threads_per_process": 2,
+        "resource_limits": "none; local host, not reference production sizes",
+        "profile": {
+          "app": {
+            "p50": 22.274,
+            "p95": 27.9
+          },
+          "sql": {
+            "p50": 10.23,
+            "p95": 13.406
+          },
+          "template": {
+            "p50": 5.609,
+            "p95": 8.918
+          },
+          "queries": {
+            "p50": 10.0,
+            "p95": 10.0
+          },
+          "queue_network_ms": {
+            "p50": 216.112,
+            "p95": 272.501
+          }
+        },
+        "profile_note": "Test-only timing middleware; inclusive template time; queue_network_ms is HTTP minus WSGI app, including client scheduling/network/server queue.",
+        "target_met": true,
+        "terminated_backends": 7,
+        "reconnect_after_backend_termination": "PASS",
+        "db_conn_max_age": 60,
+        "db_health_checks": true
+      }
+    }
+  }
+}

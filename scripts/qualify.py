@@ -3,7 +3,9 @@
 import hashlib
 import json
 import os
+import platform
 import subprocess
+import sys
 import time
 import uuid
 import xml.etree.ElementTree as ET
@@ -231,6 +233,8 @@ def main():
     directory.mkdir(parents=True)
     env = os.environ.copy() | {
         "NOEL_TEST_MAILPIT": "true",
+        "NOEL_HTTP_ONLY": "false",
+        "NOEL_HTTP_PROFILE": "false",
         "NOEL_QUALIFICATION_DIR": str(directory),
     }
     source = source_digest()
@@ -289,6 +293,17 @@ def main():
         blockers.append("Source changed while qualification was running")
     report = {
         "schema": 1,
+        "environment": {
+            "platform": platform.platform(),
+            "python": sys.version,
+            "postgresql": tasks.run(
+                [tasks.executable("postgres"), "--version"], capture_output=True, text=True
+            ).stdout.strip(),
+            "node": tasks.run(["node", "--version"], capture_output=True, text=True).stdout.strip(),
+            "db_ports": tasks.DB_PORTS,
+            "web_threads_per_process": tasks.WEB_THREADS,
+            "web_processes": tasks.WEB_PROCESSES,
+        },
         "created_at": datetime.now(UTC).isoformat(),
         "source_sha256": source,
         "local_status": "PASS"

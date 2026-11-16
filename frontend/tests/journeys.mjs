@@ -3,7 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync,writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 const fixture=JSON.parse(process.env.NOEL_UI_FIXTURE);
-const origin=`http://127.0.0.1:${fixture.role==='control'?8201:8202}`;
+const origin=fixture.origin;
 const browser=await chromium.launch({headless:true});
 const context=await browser.newContext({reducedMotion:'reduce'});
 await context.addCookies(fixture.cookies);

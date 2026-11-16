@@ -1,6 +1,8 @@
 # Exploitation native — phase 10
 
-Ces procédures Windows sont livrées pour le local et la recette synthétique. Elles ne
+Ces procédures natives sont livrées pour le local et la recette synthétique. Sous Ubuntu,
+utiliser `.venv/bin/python` au lieu de `python` et commencer par [l'inventaire Ubuntu](ubuntu.md).
+Les procédures Windows restent disponibles. Ces contrôles ne
 certifient pas un hébergement de production. Aucun Docker, GitHub Actions ou pipeline
 n'est requis par l'adaptation retenue. L'exploitant indépendant du coffre reste à désigner.
 

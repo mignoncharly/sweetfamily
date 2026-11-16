@@ -26,7 +26,7 @@ from vault_core.models import Membership,PrivateEvent
 values=tasks.config()
 os.environ.update(BACKUP_ENCRYPTION_KEY=values["VAULT_BACKUP_KEY"],BACKUP_DB_USER="noel_admin",
     BACKUP_DB_PASSWORD=values["VAULT_DB_ADMIN_PASSWORD"],
-    PG_BIN=str(tasks.ROOT/".local/tools/postgresql/pgsql/bin"))
+    PG_BIN=str(tasks.postgres_bin()))
 backup_and_verify(os.environ["SMOKE_EVENT_ID"],tasks.LOCAL/"smoke-backups")
 member=Membership.objects.get(event_id=os.environ["SMOKE_EVENT_ID"],identity__email=os.environ["SMOKE_EMAIL"])
 client=Client()
@@ -36,7 +36,7 @@ cookie="; ".join(key+"="+value.value for key,value in client.cookies.items())
 headers={"Content-Type":"application/json","Cookie":cookie,
          "X-CSRFToken":client.cookies[settings.CSRF_COOKIE_NAME].value}
 def request(path,method="GET",data=None):
-    req=urllib.request.Request("http://127.0.0.1:8002/api/me/"+path+"?event_id="+str(member.event_id),
+    req=urllib.request.Request(os.environ["NOEL_VAULT_URL"]+"/api/me/"+path+"?event_id="+str(member.event_id),
         data=json.dumps(data).encode() if data is not None else None,headers=headers,method=method)
     with urllib.request.urlopen(req) as response:
         assert response.headers["Cache-Control"]=="no-store"

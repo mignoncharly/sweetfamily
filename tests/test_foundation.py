@@ -277,6 +277,8 @@ def test_real_local_web_worker_and_mailpit_processes():
     import time
     import urllib.request
 
+    for port in (*tasks.WEB_PORTS.values(), tasks.MAILPIT_HTTP_PORT, tasks.MAILPIT_SMTP_PORT):
+        tasks.require_free_port(port)
     processes = []
     try:
         processes.append(
@@ -284,9 +286,9 @@ def test_real_local_web_worker_and_mailpit_processes():
                 [
                     str(tasks.mailpit()),
                     "--listen",
-                    "127.0.0.1:18025",
+                    f"127.0.0.1:{tasks.MAILPIT_HTTP_PORT}",
                     "--smtp",
-                    "127.0.0.1:11025",
+                    f"127.0.0.1:{tasks.MAILPIT_SMTP_PORT}",
                     "--label",
                     "Simulation",
                 ],
@@ -314,9 +316,9 @@ def test_real_local_web_worker_and_mailpit_processes():
                 )
             )
         for url in (
-            "http://127.0.0.1:18025/api/v1/messages",
-            "http://127.0.0.1:8001/health/ready",
-            "http://127.0.0.1:8002/health/ready",
+            f"http://127.0.0.1:{tasks.MAILPIT_HTTP_PORT}/api/v1/messages",
+            f"http://127.0.0.1:{tasks.WEB_PORTS['control']}/health/ready",
+            f"http://127.0.0.1:{tasks.WEB_PORTS['vault']}/health/ready",
         ):
             deadline = time.monotonic() + 180
             while True:
@@ -340,7 +342,9 @@ assert send_mail('Simulation phase 2', 'Message synthetique sans attribution.',
 """,
         )
         assert result.returncode == 0, result.stderr
-        with urllib.request.urlopen("http://127.0.0.1:18025/api/v1/messages") as response:
+        with urllib.request.urlopen(
+            f"http://127.0.0.1:{tasks.MAILPIT_HTTP_PORT}/api/v1/messages"
+        ) as response:
             payload = json.load(response)
         assert payload["total"] >= 1
         from phase3_smoke import run_smoke

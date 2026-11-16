@@ -3,7 +3,14 @@
     "version": "1.33.1",
     "url": "https://github.com/axllent/mailpit/releases/download/v1.33.1/mailpit-windows-amd64.zip",
     "archive_sha256": "0bcf8f1e7c21005b30c206064ff2f37dac602ef66774e558379d326f5673d652",
-    "binary_sha256": "0e3184aaa2ac102f016c1872fb79a77a15b310fc4a22eec48c5ddc48d8cea461"
+    "binary_sha256": "0e3184aaa2ac102f016c1872fb79a77a15b310fc4a22eec48c5ddc48d8cea461",
+    "platforms": {
+      "linux-x86_64": {
+        "url": "https://github.com/axllent/mailpit/releases/download/v1.33.1/mailpit-linux-amd64.tar.gz",
+        "archive_sha256": "84d7fe375ebef25df26758984dc0d5d5e17d8c0734cb2e77be7873b14ab51716",
+        "binary_sha256": "73e09a3c62759fca5a4be61bf6c708bc2df9c0dc11c31b116faa6700d84b4456"
+      }
+    }
   },
   "postgresql": {
     "local_observed": "18.0",
@@ -19,5 +26,10 @@
     "binary_sha256": "70334b2428dac81d111b4e3a6cfed01568b216e4ef3c5cc879d423a0fe69c0df"
   },
   "uv": "0.9.28",
-  "node_observed": "24.19.0"
+  "node_observed": "24.19.0",
+  "uv_linux_x86_64": {
+    "url": "https://github.com/astral-sh/uv/releases/download/0.9.28/uv-x86_64-unknown-linux-gnu.tar.gz",
+    "archive_sha256": "66ad1822dd9cf96694b95c24f25bc05cff417a65351464da01682a91796d1f2b",
+    "binary_sha256": "085e6be0fbb5f63c7ba39829703a7229cd62d2bd0b78ae145da9bf897e0fc007"
+  }
 }

@@ -5,13 +5,12 @@ import json
 import re
 import subprocess
 import sys
-from pathlib import Path
 
 import tasks
 
 
 def main():
-    if Path(sys.executable).resolve() != tasks.PYTHON.resolve():
+    if not tasks.in_project_environment():
         raise SystemExit(subprocess.call([str(tasks.PYTHON), __file__, *sys.argv[1:]]))
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -69,7 +68,7 @@ def main():
             BACKUP_ENCRYPTION_KEY=values[args.role.upper() + "_BACKUP_KEY"],
             BACKUP_DB_USER="noel_admin",
             BACKUP_DB_PASSWORD=values[args.role.upper() + "_DB_ADMIN_PASSWORD"],
-            PG_BIN=str(tasks.ROOT / ".local/tools/postgresql/pgsql/bin"),
+            PG_BIN=str(tasks.postgres_bin()),
         )
         action = "init" if args.action == "operations-init" else args.action
         extra = ["--directory", str(tasks.LOCAL / "backups" / args.role)]
@@ -120,7 +119,7 @@ def main():
             BACKUP_ENCRYPTION_KEY=values["VAULT_BACKUP_KEY"],
             BACKUP_DB_USER="noel_admin",
             BACKUP_DB_PASSWORD=values["VAULT_DB_ADMIN_PASSWORD"],
-            PG_BIN=str(tasks.ROOT / ".local/tools/postgresql/pgsql/bin"),
+            PG_BIN=str(tasks.postgres_bin()),
             OPERATIONS_DIRECTORY=str(tasks.LOCAL / "operations"),
             OPERATIONS_KEY=values["VAULT_OPERATIONS_KEY"],
         )

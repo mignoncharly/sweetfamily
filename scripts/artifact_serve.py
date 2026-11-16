@@ -2,17 +2,14 @@ import os
 import sys
 from pathlib import Path
 
-from waitress import serve
-
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ROLE_project.settings")
-from ROLE_project.wsgi import application
+from noel_server import serve_application
 
 if __name__ == "__main__":
-    serve(
-        application,
-        host="127.0.0.1",
+    serve_application(
+        "ROLE_project.wsgi:application",
         port=int(os.environ.get("PORT", "8000")),
-        threads=4,
-        clear_untrusted_proxy_headers=True,
+        processes=int(os.environ.get("WEB_PROCESSES", "1")),
+        threads=int(os.environ.get("WEB_THREADS", "4")),
     )

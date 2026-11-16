@@ -1,6 +1,6 @@
 # Qualification de phase 10 — exploitation locale
 
-Date : 16 novembre 2026. Windows x64, PostgreSQL natif, deux services séparés,
+Historique Windows : 16 novembre 2026. Windows x64, PostgreSQL natif, deux services séparés,
 sans Docker, GitHub Actions, dépôt distant ou CI/CD.
 
 ## Périmètre livré
@@ -79,3 +79,24 @@ externes nécessitent inventaire ; la réduction du registre après 120 jours re
 manuelle conditionnée par la disparition des copies rejouables. Les logs et planificateurs
 de production relèvent du superviseur à configurer. Ces limites empêchent de déclarer la
 phase 10 globale terminée ou le produit « prêt pour la famille ».
+
+## Requalification indépendante Ubuntu — même journée
+
+Le [rapport Ubuntu](ubuntu-2026-11-16.md) et son [résumé JSON](ubuntu-2026-11-16.json) portent
+les résultats de la source remise depuis le clone Linux. Le run final est
+`20261116T121211Z-59ab2e86`, source
+`ac0ff2f302731eb99aa67cb448da9ff1dfe7206643188fccef90b73627786daf`.
+
+PASS local : 74 tests racine, 51/164 cas imbriqués, deux parcours Chromium et 33 scans Axe
+sans violation, sécurité, migrations, recovery/purge et distributions natives. P95 portail
+282,695 ms / coffre 327,425 ms avec deux processus × deux threads par rôle ; cible locale
+atteinte sans TLS et sans quotas de production. Reconnexion après terminaison de six backends
+par rôle PASS. Trois calculs de vingt membres : 1,346 / 1,399 / 1,376 secondes.
+Les registres opérateur ont été initialisés et leurs états vérifiés séparément.
+
+L'installation et l'exploitation Ubuntu sont dans [le runbook](../runbooks/ubuntu.md).
+Le mode Windows historique 1 × 4 reste disponible ; il n'a pas été rejoué sur Windows pendant
+cette session. `verify-release` reste BLOCKED, code 2. La performance sous limites/HTTPS,
+matériel assistif, email réel, indépendance, supervision/entretien/backups/alertes et
+restauration indépendante RPO/RTO restent non validés. PostgreSQL 17.11 local ne valide pas
+le minimum 17.12 enregistré pour la production. Aucun déploiement ni tirage réel n'est exécuté.
