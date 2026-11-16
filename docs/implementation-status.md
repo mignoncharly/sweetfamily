@@ -177,7 +177,10 @@ bases/credentials/venvs neufs, SQL TLS verify-full, artefacts de rôles, unités
 backups initiaux et proxy nginx testé en privé. La source passe 76 tests racine, 51/164 cas
 imbriqués, navigateurs/Axe et audits ; voir [rapport hébergé](qualification/hosted-staging-2026-11-16.md).
 
-L'activation publique reste BLOQUÉE : record A du coffre absent, sudo requérant une
-authentification pour installer nginx et obtenir les certificats. Le [runbook](runbooks/hosted-staging.md)
-et le script administrateur sont prêts ; aucune réussite publique ou production n'est
-revendiquée. L'email et la connexion email restent désactivés. gtech n'est pas modifié.
+L'activation publique a été exécutée par l'utilisateur avec sudo. Les deux domaines sont
+accessibles en HTTPS avec certificat Let's Encrypt valide jusqu'au 14 février 2027. Vérifications
+curl sans contournement TLS, Chromium, quatre scans Axe publics et vérification indépendante
+hors serveur PASS. Six unités actives et enabled, linger actif, hook de renouvellement installé.
+Le [runbook](runbooks/hosted-staging.md) et le [rapport](qualification/hosted-staging-2026-11-16.md)
+portent les preuves. L'email et la connexion email restent désactivés ; la production et
+l'indépendance du coffre restent non qualifiées. gtech conserve son PID et zéro restart.

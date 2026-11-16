@@ -42,6 +42,7 @@ externes. Aucun endpoint public, domaine ou superviseur de production n'a été 
 ## Domaines demandés et état de préparation
 
 Pour sweetfamily.gestionatech.de et vault.sweetfamily.gestionatech.de, consulter le
-[runbook de recette hébergée](hosted-staging.md). Les services sont privés et préparés ;
-le record A du coffre et une exécution sudo de l'activation sont encore nécessaires.
-Le script ne lève pas les critères de production et ne configure aucun email réel.
+[runbook de recette hébergée](hosted-staging.md). Les deux sites sont maintenant actifs en
+HTTPS après exécution administrateur, avec backends/SQL privés et unités utilisateur enabled.
+Les pages et certificats publics ont été vérifiés sans ignorer TLS. Ce résultat de staging
+ne lève pas les critères de production et ne configure aucun email réel.

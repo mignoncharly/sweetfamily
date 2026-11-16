@@ -1,17 +1,16 @@
 # Recette hébergée Sweetfamily — préparation du 16 novembre 2026
 
-**État : services privés prêts ; activation publique bloquée.** Le portail demandé est
+**État actuel : recette publique HTTPS active ; production BLOCKED.** Le portail demandé est
 `sweetfamily.gestionatech.de`, le coffre confirmé par l'utilisateur est
-`vault.sweetfamily.gestionatech.de`. Le portail résout vers 217.154.166.155 ; le coffre n'a
-pas encore de record A. Le TLS public du portail présente actuellement un autre certificat.
-La session ne dispose pas de sudo sans authentification ; aucun fichier nginx système,
-certificat public, DNS ou service gtech n'est modifié par l'agent.
+`vault.sweetfamily.gestionatech.de`. Les deux readiness et les pages publiques sont maintenant
+vérifiés sur le certificat Let's Encrypt couvrant les deux noms. La production reste bloquée.
+L'utilisateur a exécuté l'activation sudo ; la session agent a vérifié les résultats sans
+modifier la configuration d'une autre application. Les premiers blocages ci-dessous sont historiques.
 
 Les fichiers exacts de mise en service sont préparés et le [runbook hébergé](../runbooks/hosted-staging.md)
-donne la seule commande administrateur restante, après création de l'A du coffre. Le script
-n'a **pas** été exécuté avec root. Sa syntaxe bash et la configuration nginx ont été validées,
-et un proxy HTTPS privé utilisant le même routage a été exercé ; ces résultats ne valent
-pas réussite d'une émission Let's Encrypt ou d'un accès public.
+donne la commande administrateur pour une réactivation. Les premiers essais privés ne
+valaient pas accès public. L'activation administrateur et les contrôles publics sont désormais
+réussis ; voir la preuve de fin de rapport et le résumé JSON.
 
 ## Résultats réellement obtenus
 
@@ -56,12 +55,9 @@ et Forwarded falsifiés. Un bandeau staging indique données fictives et email d
 
 ## Blocages et portée
 
-Activation publique : ajouter A vault.sweetfamily.gestionatech.de vers 217.154.166.155, puis
-exécuter `sudo bash /home/mignon/apps/sweetfamily/scripts/activate_hosted.sh` depuis un terminal
-administrateur. La demande a été présentée à l'utilisateur ; aucune exécution n'est inventée.
-Une fois cette action effectuée, vérifier les deux URL HTTPS sans ignorer TLS et rejouer les
-contrôles navigateur publics. Les six unités ne sont pas encore activées au boot et le linger
-est désactivé ; l'activation administrateur complète ces deux points.
+Activation publique terminée. Les deux A résolvent vers 217.154.166.155, le certificat est
+validé sans contournement et les six unités sont enabled avec Linger=yes. Le reboot de l'hôte,
+la reprise après panne publique et une charge HTTPS authentifiée restent non exercés.
 
 MAIL_PROVIDER=blocked et MAIL_LIVE_ENABLED=false : les connexions par email restent
 indisponibles. Aucun secret email gtech n'est lu/copié et aucun email réel n'est envoyé.
@@ -99,3 +95,30 @@ noms SAN vérifiés. Les preuves privées sont dans `.local/tls-reload-check/res
 l'instance de test est arrêtée. Aucun changement du runtime Django ; la requalification
 Python précédente reste celle de son snapshot. La validation publique demeure en attente
 d'une nouvelle exécution sudo. gtech reste actif, même PID et zéro restart.
+
+## Activation publique finale — 2026-11-16T13:40:57.725439+00:00
+
+L'utilisateur a relancé le script avec sudo ; il a attendu le reload, réutilisé le certificat,
+installé le hook de renouvellement et activé les six unités avec linger. L'activation a terminé
+avec succès. Les contrôles indépendants effectués par l'agent passent :
+
+| Contrôle public | Résultat |
+|---|---|
+| Ready portail / coffre, curl normal sans -k | 200 / 200, status=ok |
+| HTTP vers HTTPS | 301 vers le bon domaine pour chaque rôle |
+| Certificat | Let's Encrypt YE1, deux SAN exacts, expiration 2027-02-14 12:31 UTC |
+| TLS | TLS 1.3, chaîne et hostname validés par Python ssl et Chromium |
+| Headers forwarded forgés | Les deux ready restent HTTPS/200, pas de redirection vers un hôte fourni |
+| Chromium public | Quatre pages HTTP 200, quatre scans Axe sans violation |
+| Cookies | CSRF Secure et host-only, domaine propre à chaque rôle |
+| Vérification hors serveur | Deux fetch live Firecrawl indépendants, 200/status=ok |
+| Persistance configurée | Six unités actives/enabled, Linger=yes ; reboot non testé |
+| Renouvellement | Timer Certbot actif et hook de reload limité aux deux noms présent |
+| gtech | Actif, MainPID 1733623, NRestarts=0 |
+
+Les preuves locales sont dans `.local/hosted/public-verification.json` et
+`.local/hosted/browser-public/result.json`, avec captures synthétiques. Le résumé JSON versionné
+conserve ces faits sans cookies ou secrets. Les checks système ne remplacent pas la recette
+manuelle assistive, email, charge authentifiée, supervision d'incident, maintenance planifiée,
+restauration indépendante/RPO/RTO et revue externe. Aucun email réel ou tirage familial n'est
+exécuté. L'email et la connexion email restent explicitement désactivés dans le bandeau.

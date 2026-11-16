@@ -1,13 +1,11 @@
 {
   "date": "2026-11-16",
-  "status": "PREPARED_PRIVATE; PUBLIC_ACTIVATION_BLOCKED",
+  "status": "PUBLIC_HTTPS_STAGING_ACTIVE; PRODUCTION_BLOCKED",
   "domains": {
     "control": "sweetfamily.gestionatech.de",
     "vault": "vault.sweetfamily.gestionatech.de"
   },
-  "public_blockers": [
-    "Administrator must rerun activation with bounded HTTPS readiness checks after the previous rollback"
-  ],
+  "public_blockers": [],
   "email": "blocked; no live email authorized or sent",
   "source_sha256": "641a67a0b6571fae5a60fc4c90b53213d6bad32f1f5915935c72d5159bedf627",
   "qualification_run": "20261116T122921Z-db5d1327",
@@ -218,7 +216,7 @@
       "expires": "2027-02-14",
       "certificate_retained_after_rollback": true
     },
-    "public_https_verified": false,
+    "public_https_verified": true,
     "failure": "Immediate HTTPS check after reload saw mismatched certificate and triggered rollback",
     "fix": "Reuse validated certificate; bounded local and public HTTPS readiness checks with CA and hostname validation",
     "private_nginx_regression": {
@@ -233,5 +231,156 @@
       "main_pid": 1733623,
       "restarts": 0
     }
+  },
+  "public_activation": {
+    "verified_at": "2026-11-16T13:40:57.725439+00:00",
+    "scope": "Public HTTPS staging only; no email or authenticated family workflow exercised",
+    "tls": {
+      "control": {
+        "hostname": "sweetfamily.gestionatech.de",
+        "protocol": "TLSv1.3",
+        "verified": true,
+        "subject_alt_names": [
+          "sweetfamily.gestionatech.de",
+          "vault.sweetfamily.gestionatech.de"
+        ],
+        "not_before": "Nov 16 12:31:01 2026 GMT",
+        "not_after": "Feb 14 12:31:00 2027 GMT",
+        "sha256": "d3b72856985559bf5c305e81e4a29b8ef08721e05760ca0a0643c94cb24dc644"
+      },
+      "vault": {
+        "hostname": "vault.sweetfamily.gestionatech.de",
+        "protocol": "TLSv1.3",
+        "verified": true,
+        "subject_alt_names": [
+          "sweetfamily.gestionatech.de",
+          "vault.sweetfamily.gestionatech.de"
+        ],
+        "not_before": "Nov 16 12:31:01 2026 GMT",
+        "not_after": "Feb 14 12:31:00 2027 GMT",
+        "sha256": "d3b72856985559bf5c305e81e4a29b8ef08721e05760ca0a0643c94cb24dc644"
+      }
+    },
+    "browser": {
+      "scope": "Public domain HTTPS, normal DNS, certificate validation enabled, no resolver overrides",
+      "facts": [
+        {
+          "role": "control",
+          "path": "/",
+          "status": 200,
+          "axe_violations": 0,
+          "tls": {
+            "issuer": "YE1",
+            "protocol": "TLS 1.3",
+            "subjectName": "sweetfamily.gestionatech.de",
+            "validFrom": 1794832261,
+            "validTo": 1802608260
+          }
+        },
+        {
+          "role": "control",
+          "path": "/accounts/login/code/",
+          "status": 200,
+          "axe_violations": 0,
+          "tls": {
+            "issuer": "YE1",
+            "protocol": "TLS 1.3",
+            "subjectName": "sweetfamily.gestionatech.de",
+            "validFrom": 1794832261,
+            "validTo": 1802608260
+          }
+        },
+        {
+          "role": "vault",
+          "path": "/",
+          "status": 200,
+          "axe_violations": 0,
+          "tls": {
+            "issuer": "YE1",
+            "protocol": "TLS 1.3",
+            "subjectName": "sweetfamily.gestionatech.de",
+            "validFrom": 1794832261,
+            "validTo": 1802608260
+          }
+        },
+        {
+          "role": "vault",
+          "path": "/accounts/login/code/",
+          "status": 200,
+          "axe_violations": 0,
+          "tls": {
+            "issuer": "YE1",
+            "protocol": "TLS 1.3",
+            "subjectName": "sweetfamily.gestionatech.de",
+            "validFrom": 1794832261,
+            "validTo": 1802608260
+          }
+        }
+      ]
+    },
+    "http_redirects": {
+      "control": "301 https://sweetfamily.gestionatech.de/",
+      "vault": "301 https://vault.sweetfamily.gestionatech.de/"
+    },
+    "forged_forwarded_headers": {
+      "control": "PASS: HTTPS remains ready",
+      "vault": "PASS: HTTPS remains ready"
+    },
+    "services": {
+      "sweetfamily-staging-control-db.service": {
+        "state": "active",
+        "startup": "enabled"
+      },
+      "sweetfamily-staging-control-web.service": {
+        "state": "active",
+        "startup": "enabled"
+      },
+      "sweetfamily-staging-control-worker.service": {
+        "state": "active",
+        "startup": "enabled"
+      },
+      "sweetfamily-staging-vault-db.service": {
+        "state": "active",
+        "startup": "enabled"
+      },
+      "sweetfamily-staging-vault-web.service": {
+        "state": "active",
+        "startup": "enabled"
+      },
+      "sweetfamily-staging-vault-worker.service": {
+        "state": "active",
+        "startup": "enabled"
+      }
+    },
+    "linger": "Linger=yes",
+    "renewal_timer": "active",
+    "renewal_hook_readable": true,
+    "nginx_config_sha256": "5c273d3d01f8346b08612301df477c2af74d3489220d43e16ddd0c5a6acb8536",
+    "gtech": [
+      "MainPID=1733623",
+      "NRestarts=0",
+      "ActiveState=active"
+    ],
+    "external_ready_checks": [
+      {
+        "url": "https://sweetfamily.gestionatech.de/health/ready",
+        "provider": "Firecrawl live fetch, maxAge=0",
+        "http_status": 200,
+        "body": {
+          "status": "ok"
+        },
+        "scrape_id": "01a1e495-0965-76ef-a342-ea21d995d391"
+      },
+      {
+        "url": "https://vault.sweetfamily.gestionatech.de/health/ready",
+        "provider": "Firecrawl live fetch, maxAge=0",
+        "http_status": 200,
+        "body": {
+          "status": "ok"
+        },
+        "scrape_id": "01a1e495-07e1-72d4-b33d-347ce708762e"
+      }
+    ],
+    "authenticated_https_load_qualified": false
   }
 }

@@ -6,7 +6,24 @@ Demande du 16 novembre 2026 : portail `sweetfamily.gestionatech.de`, coffre sép
 email/connexion email désactivés. Aucune garantie d'indépendance du coffre n'est revendiquée
 sur cet hôte partagé et `verify-release` reste bloqué.
 
-## Étapes administrateur restantes
+## État actuel vérifié
+
+Recette publique active ; vérification enregistrée le `2026-11-16T13:40:57.725439+00:00`.
+
+- https://sweetfamily.gestionatech.de/ : portail, HTTP 200.
+- https://vault.sweetfamily.gestionatech.de/ : coffre, HTTP 200.
+- HTTP redirige en 301 vers HTTPS ; les deux readiness rendent 200 et status=ok.
+- Certificat Let's Encrypt YE1 couvrant les deux SAN, valide jusqu'au 14 février 2027.
+- Chromium sans ignoreHTTPSErrors ni override DNS : quatre pages, quatre scans Axe sans
+  violation, cookies CSRF Secure/host-only PASS. Les pages affichent le bandeau staging.
+- Vérifications externes Firecrawl en fetch live : les deux readiness rendent HTTP 200.
+- Six unités actives et enabled, Linger=yes, timer Certbot actif et hook propre aux deux noms.
+- gtech actif/running, PID 1733623, zéro restart. Aucun redémarrage du serveur n'a été testé.
+
+L'email et la connexion email restent désactivés. Les limites de production et d'indépendance
+restent celles du rapport ; ces GET publics ne sont pas une recette authentifiée sous charge.
+
+## Activation et réactivation administrateur
 
 Les deux domaines résolvent maintenant vers 217.154.166.155. Le record attendu dans la zone gestionatech.de est :
 
@@ -30,7 +47,7 @@ puis attend au plus six minutes que `getent ahostsv4` confirme la bonne adresse 
 Il ne change aucun résolveur partagé et ne touche nginx qu'après cette confirmation.
 Un record réellement absent conserve un refus explicite avant toute modification.
 
-La session agent ne peut pas exécuter ce dernier pas : sudo exige une authentification et
+L’utilisateur a exécuté ce pas avec succès. Toute réactivation reste une action administrateur : sudo exige une authentification et
 `/etc/nginx` ainsi que les certificats sont détenus par root. Ne jamais coller de mot de passe
 ou secret dans la conversation. Les fichiers exacts sont reviewables :
 `scripts/activate_hosted.sh` et `infra/hosted/sweetfamily.conf`.
@@ -196,3 +213,11 @@ reload retardé puis nouveau worker accepté, deux SAN acceptés et certificat d
 refusé pour réutilisation. Temps du scénario de reload : environ une seconde. Le nginx de test
 sur 127.0.0.1:18463 est arrêté. Cette preuve ne constitue pas une validation HTTPS publique.
 Relancer la même commande sudo ; le certificat déjà obtenu est conservé après rollback.
+
+## Activation réussie et vérification publique
+
+Le lancement administrateur de 13:37 UTC a réutilisé le certificat et attendu les nouveaux
+workers. Le script a terminé avec succès et les deux services sont maintenant vérifiés en
+HTTPS public. Les tentatives précédentes et les tests privés ci-dessus constituent l'historique
+du diagnostic ; ils ne sont plus les blocages courants. Le rapport JSON conserve la vérification
+publique, les informations TLS et l'état des unités. Aucun secret ou email réel n'est utilisé.

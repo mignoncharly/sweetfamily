@@ -5,11 +5,13 @@ La mise en production reste bloquée par les critères de qualification externes
 [Avancement](docs/implementation-status.md) · [Contrat produit](docs/product-spec.md) ·
 [Contrats API](docs/api-contracts.md).
 
-## Recette hébergée demandée
+## Recette hébergée active
 
-Portail `sweetfamily.gestionatech.de`, coffre `vault.sweetfamily.gestionatech.de` : services
-privés préparés, activation DNS/administrateur restante. Voir [état et commande d'activation](docs/runbooks/hosted-staging.md).
-L'email est désactivé et la production reste non qualifiée.
+[Portail](https://sweetfamily.gestionatech.de/) · [Coffre](https://vault.sweetfamily.gestionatech.de/)
+
+Les deux sites sont accessibles en HTTPS et vérifiés dans Chromium, avec certificat valide.
+Voir [état et exploitation](docs/runbooks/hosted-staging.md). L'email et la connexion email
+restent désactivés ; seules des données fictives sont autorisées et la production reste non qualifiée.
 
 ## Démarrer sur Ubuntu
 
