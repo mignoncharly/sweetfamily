@@ -1,0 +1,41 @@
+from django.urls import path
+
+from . import (
+    delivery_views,
+    draw_views,
+    notification_views,
+    participant,
+    private_views,
+    views,
+    wishlist_views,
+)
+
+urlpatterns = [
+    path("api/me/availability", private_views.availability),
+    path("join-pending", views.accept),
+    path("help", participant.help_page),
+    path("profile", participant.page, {"kind": "profile"}),
+    path("withdraw", participant.page, {"kind": "withdraw"}),
+    path("merchant", participant.page, {"kind": "merchant"}),
+    path("api/me/notification-preferences", notification_views.preferences),
+    path("notifications", notification_views.page),
+    path("webhooks/resend", delivery_views.webhook),
+    path("private", private_views.private_page),
+    path("api/me/recipient", private_views.my_recipient),
+    path("api/me/recipient/reveal", private_views.reveal),
+    path("api/me/purchase", private_views.my_purchase),
+    path("rules", draw_views.rules_page),
+    path("api/me/roster", draw_views.roster),
+    path("api/me/roster-consent", draw_views.roster_consent),
+    path("api/me/withdrawal", draw_views.withdrawal),
+    path("wishlist", wishlist_views.editor),
+    path("api/me/wishlist", wishlist_views.wishlist),
+    path("api/me/wishlist/validate", wishlist_views.validate),
+    path("api/me/merchant-requests", wishlist_views.merchant_request),
+    path("", views.home),
+    path("join/<str:token>", views.join),
+    path("api/me/invitations/accept", views.accept),
+    path("api/me/events", views.my_events),
+    path("api/me/profile", views.profile),
+    path("internal/commands", views.commands),
+]

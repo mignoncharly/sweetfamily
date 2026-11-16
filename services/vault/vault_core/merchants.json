@@ -1,0 +1,8 @@
+{
+ "amazon.fr":{"name":"Amazon France","country":"FR","search":"https://www.amazon.fr/s?k="},
+ "amazon.de":{"name":"Amazon Allemagne","country":"DE","search":"https://www.amazon.de/s?k="},
+ "fnac.com":{"name":"Fnac","country":"FR","search":"https://www.fnac.com/SearchResult/ResultList.aspx?Search="},
+ "thalia.de":{"name":"Thalia","country":"DE","search":"https://www.thalia.de/suche?sq="},
+ "decathlon.fr":{"name":"Decathlon France","country":"FR","search":"https://www.decathlon.fr/search?Ntt="},
+ "decathlon.de":{"name":"Decathlon Allemagne","country":"DE","search":"https://www.decathlon.de/search?Ntt="}
+}

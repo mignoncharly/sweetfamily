@@ -1,0 +1,23 @@
+{
+  "mailpit": {
+    "version": "1.33.1",
+    "url": "https://github.com/axllent/mailpit/releases/download/v1.33.1/mailpit-windows-amd64.zip",
+    "archive_sha256": "0bcf8f1e7c21005b30c206064ff2f37dac602ef66774e558379d326f5673d652",
+    "binary_sha256": "0e3184aaa2ac102f016c1872fb79a77a15b310fc4a22eec48c5ddc48d8cea461"
+  },
+  "postgresql": {
+    "local_observed": "18.0",
+    "production_minimum": {
+      "17": "17.12",
+      "18": "18.7"
+    },
+    "verified_on": "2026-11-15",
+    "source": "https://www.postgresql.org/support/versioning/",
+    "version": "17.12",
+    "url": "https://get.enterprisedb.com/postgresql/postgresql-17.12-1-windows-x64-binaries.zip",
+    "archive_sha256": "a2cd8a774389347b70be7748ac4a37ef43cb6ee539c5fc3e85ae264b15e4a04c",
+    "binary_sha256": "70334b2428dac81d111b4e3a6cfed01568b216e4ef3c5cc879d423a0fe69c0df"
+  },
+  "uv": "0.9.28",
+  "node_observed": "24.19.0"
+}

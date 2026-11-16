@@ -1,0 +1,6 @@
+{% extends "allauth/layouts/base.html" %}{% block content %}<h1>Notifications et rappels</h1>{% if simulation %}<p><strong>Simulation — boîte locale Mailpit, aucun email externe.</strong></p>{% endif %}
+<p>Les messages n'indiquent ni à qui tu offres, ni les souhaits ou tes achats.</p>
+<form method="post" data-async>{% csrf_token %}<label><input type="checkbox" name="reminders_enabled" {% if member.reminders_enabled %}checked{% endif %}>Recevoir les rappels facultatifs et résumés de souhaits</label><button>Enregistrer</button></form>
+<p>L'organisateur doit aussi activer les rappels de l'événement après confirmation des dates.</p>
+<ul>{% for notice in notices %}<li>{{ notice.kind_label }} : {{ notice.status_label }}</li>{% empty %}<li>Aucun message de suivi.</li>{% endfor %}</ul>
+{% if zoho %}<p>Zoho SMTP ne fournit pas de webhook de livraison : « soumis » signifie accepté par le relais SMTP, sans preuve de réception en boîte.</p>{% endif %}<p>Un message accepté n'est pas forcément livré. « Livré » signifie remis au serveur email, pas forcément dans la boîte principale ou lu. La consultation du tirage vient seulement de ton action dans le coffre.</p>{% endblock %}

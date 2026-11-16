@@ -1,0 +1,1 @@
+{"name":"noel-secret-assets","private":true,"version":"0.1.0","scripts":{"check":"tsc --noEmit","build":"tsc && node build.mjs"},"devDependencies":{"@axe-core/playwright":"^4.14.0","@playwright/test":"^1.65.1","typescript":"^5.9.0"}}

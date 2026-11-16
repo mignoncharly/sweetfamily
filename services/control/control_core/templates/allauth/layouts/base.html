@@ -1,0 +1,10 @@
+{% load static %}<!doctype html><html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>Noël Secret — accès personnel</title>
+<link rel="stylesheet" href="{% static 'main.css' %}"><script src="{% static 'main.js' %}" defer></script></head><body>
+<a class="skip" href="#content">Aller au contenu</a>
+<header><a class="brand" href="/">Noël Secret</a><nav aria-label="Navigation principale"><a href="/">{% if service_role == "control" %}Mes événements{% else %}Mon espace{% endif %}</a> <a href="/help">Aide</a>{% if service_role == "control" and vault_origin %}<a href="{{ vault_origin }}">Mon espace participant</a>{% endif %}
+{% if user.is_authenticated %}<a href="/accounts/email/">Mon compte</a><a href="/accounts/logout/">Déconnexion</a>{% else %}<a href="/accounts/login/code/">Connexion</a>{% endif %}</nav></header>
+{% if simulation %}<p class="badge">Simulation — les emails restent dans Mailpit</p>{% endif %}
+{% if messages %}<div role="status">{% for message in messages %}<p>{{ message }}</p>{% endfor %}</div>{% endif %}
+<main id="content" tabindex="-1">{% if requires_form_js %}<noscript><p class="notice">Les enregistrements et le masquage de cet espace nécessitent JavaScript pour garder la protection de confidentialité. Active-le avant de continuer.</p></noscript>{% endif %}{% block body %}{% block content %}{% endblock %}{% endblock %}</main>
+<footer><p>Sur un appareil partagé, masque le cadeau puis déconnecte-toi après utilisation.</p><a href="/accounts/2fa/">Facteurs de connexion</a> · <a href="/accounts/sessions/">Mes sessions</a> · <a href="/help#data">Mes données et conservation</a></footer></body></html>

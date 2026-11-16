@@ -1,0 +1,11 @@
+{% extends "allauth/layouts/base.html" %}{% block content %}
+<section class="hero"><p class="eyebrow">Se retrouver, se faire plaisir</p><h1>Un Noël à préparer ensemble.</h1>
+<p class="lead">Organise le réveillon sans connaître les attributions. Chacun garde ses souhaits et son cadeau dans le coffre personnel.</p>
+{% if user.is_authenticated %}<div class="actions"><a class="button" href="/events/new">Créer un événement</a><a class="button secondary" href="/transfers">Transferts reçus</a></div>
+{% else %}<div class="actions"><a class="button" href="/accounts/signup/">Créer mon compte organisateur</a><a href="/accounts/login/code/">Me connecter</a></div>{% endif %}</section>
+{% if user.is_authenticated %}<section aria-labelledby="events-title"><h2 id="events-title">Mes événements</h2><div class="cards">
+{% for row in rows %}<article class="card"><span class="badge">{{ row.label }}</span><h3>{{ row.event.title }}</h3>
+<p>Réveillon le {{ row.event.celebration_at|date:"d/m/Y" }} · {{ row.event.timezone }}</p><a class="button secondary" href="/events/{{ row.event.id }}">Gérer {{ row.event.title }}</a></article>
+{% empty %}<article class="card"><h3>Le premier réveillon commence ici</h3><p>Crée un brouillon, ajoute quatre à vingt personnes et vérifie leurs adresses avant les invitations.</p></article>{% endfor %}</div></section>
+{% else %}<div class="cards"><article class="card"><h2>Trois idées chacun</h2><p>Chaque souhait coûte de 0,01 € à 49,99 €. L'acheteur vérifie les frais et la livraison dans son pays.</p></article><article class="card"><h2>Un espace vraiment personnel</h2><p>Le portail suit la préparation. Seul le coffre révèle à chaque membre sa propre attribution.</p></article></div>{% endif %}
+{% endblock %}

@@ -1,0 +1,6 @@
+{% extends "allauth/layouts/base.html" %}{% block content %}
+<h1>Invitation à {{ event.title }}</h1>
+<p>Tu es sur le coffre privé. Ce lien ne suffit pas pour accéder à un espace personnel.</p>
+<p>Échéance : {{ event.wishlist_deadline }}. Cadeau À recevoir chez toi et à apporter au réveillon.</p>
+<form method="post">{% csrf_token %}<button>Continuer et vérifier ma boîte email</button></form>
+{% endblock %}

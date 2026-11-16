@@ -1,0 +1,37 @@
+{% extends "allauth/layouts/base.html" %}{% block head_title %}Mon cadeau à préparer{% endblock %}
+{% block content %}<h1>Mon cadeau à préparer</h1><noscript><p>Pour révéler et masquer le cadeau avec la protection de confidentialité, active JavaScript sur cet espace. Ne consulte pas ton cadeau sur un appareil partagé sans masquage.</p></noscript><div data-private-page><p>Enregistre ta note avant de masquer ou de quitter cet onglet.</p><button type="button" data-hide-private {% if not result %}hidden{% endif %}>Masquer immédiatement (Échap)</button><p data-private-status role="status"></p>{% if not blocked %}<form method="post" data-reveal-form data-async {% if result %}hidden{% endif %}>{% csrf_token %}<button name="action" value="reveal">Découvrir mon cadeau à préparer</button></form>{% endif %}
+{% if message %}<p role="status">{{ message }}</p>{% endif %}
+{% if not result %}
+<p>Ouvre ton espace à l'abri des regards. Cette action marque la consultation de ton attribution.</p>
+
+{% else %}
+<section data-private-content><h2>Tu offres à {{ result.recipient.display_name }}</h2>
+<p>{{ result.advice.notice }} {{ result.advice.delivery }} {{ result.advice.price_notice }}</p>
+<p>Ton pays d'achat : {{ result.advice.buyer_country }}. Liste courante, révision {{ result.revision }}.</p>
+{% for wish in result.wishes %}<article><h3>{{ wish.title }}</h3><p>{{ wish.note }}</p>
+<p>Prix indicatif : {{ wish.price_eur_cents }} centimes EUR, déclaré le {{ wish.price_date }}.
+{% if wish.shipping_included %}Frais compris.{% else %}Frais hors plafond.{% endif %}
+{% if wish.exact_model %}Modèle exact demandé.{% elif wish.equivalent_ok %}Équivalent accepté.{% endif %}</p>
+<a href="{{ wish.url }}" target="_blank" rel="noopener noreferrer">Ouvrir la référence marchande</a></article>{% endfor %}
+{% for item in result.advice.items %}<p>Rechercher « {{ item.copy_text }} » :
+{% for search in item.searches %}<a href="{{ search.url }}" target="_blank" rel="noopener noreferrer">{{ search.name }}</a> {% endfor %}</p>{% endfor %}
+<h2>Ma préparation privée</h2>
+<p>La personne tirée ne voit ni ton choix, ni ton avancement, ni ta note. L'organisateur reçoit seulement un total de personnes prêtes.</p>
+{% if preparation.selected_wish %}<p>Choix conservé : {{ preparation.selected_wish.title }}, révision {{ preparation.wish_revision }}.</p>{% endif %}
+{% if preparation.wishlist_changed %}<p role="status">Les souhaits ont changé depuis ton choix. Compare la référence conservée avec la liste courante avant achat.</p>
+<p>Ancienne référence : <a href="{{ preparation.selected_wish.url }}" target="_blank" rel="noopener noreferrer">{{ preparation.selected_wish.title }}</a> ; {{ preparation.selected_wish.price_eur_cents }} centimes EUR. {{ preparation.selected_wish.note }}</p>{% endif %}
+{% if member.event.state == "DRAWN" %}<form method="post" data-async>{% csrf_token %}
+<input type="hidden" name="revision" value="{{ preparation.revision }}">
+<label>Souhait choisi <select name="wish_id"><option value="">Pas encore choisi</option>
+{% for wish in result.wishes %}<option value="{{ wish.id }}" {% if preparation.wish_id == wish.id %}selected{% endif %}>{{ wish.title }}</option>{% endfor %}</select></label>
+<label>Avancement <select name="state">
+<option value="NOT_STARTED" {% if preparation.state == "NOT_STARTED" %}selected{% endif %}>Pas commencé</option>
+<option value="ORDERED" {% if preparation.state == "ORDERED" %}selected{% endif %}>Commandé</option>
+<option value="RECEIVED" {% if preparation.state == "RECEIVED" %}selected{% endif %}>Reçu chez moi</option>
+<option value="READY" {% if preparation.state == "READY" %}selected{% endif %}>Prêt à apporter</option>
+<option value="GIVEN" {% if preparation.state == "GIVEN" %}selected{% endif %}>Offert</option></select></label>
+<label>Note personnelle <textarea name="note" maxlength="1000">{{ preparation.note }}</textarea></label>
+<button name="action" value="purchase">Enregistrer ma préparation</button>
+{% if preparation.wishlist_changed %}<button name="action" value="refresh">Confirmer le choix avec la liste courante</button>{% endif %}
+</form>{% else %}<p>Événement terminé : préparation en lecture seule.</p>{% endif %}
+</section>{% endif %}</div>{% endblock %}

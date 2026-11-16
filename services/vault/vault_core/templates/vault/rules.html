@@ -1,0 +1,19 @@
+{% extends "allauth/layouts/base.html" %}{% block content %}
+<h1>Le groupe et les règles — {{ member.event.title }}</h1><p>{{ progress }}</p>
+{% if message %}<p role="status">{{ message }}</p>{% endif %}
+{% if manifest %}
+<p>Vérifie chaque personne, son pays et les exclusions. Un email vérifié ne prouve pas à lui seul une identité réelle.
+Si une personne est inconnue ou une règle incorrecte, ne confirme pas.</p>
+<ul>{% for person in manifest.members %}<li>{{ person.display_name }} — {{ person.country }}</li>{% endfor %}</ul>
+<p>Trois souhaits, maximum 49,99 € chacun.
+{% if manifest.event.shipping_included %}Frais inclus.{% else %}Frais hors plafond.{% endif %}
+À recevoir chez toi, puis {{ manifest.event.handover }}</p>
+<p>Réveillon : {{ celebration_label }} ; échéance : {{ deadline_label }} ;
+fuseau : {{ manifest.event.timezone }}.</p>
+<h2>Exclusions dirigées</h2><ul>{% for pair in exclusion_labels %}<li>{{ pair.0 }} ne peut pas offrir à {{ pair.1 }}.</li>{% empty %}<li>Aucune, hors attribution à soi-même.</li>{% endfor %}</ul>
+<form method="post" data-async>{% csrf_token %}<input type="hidden" name="manifest_version" value="{{ manifest.version }}">
+<input type="hidden" name="manifest_digest" value="{{ digest }}">
+<button>J'accepte cette version du groupe et des règles</button></form>
+{% endif %}
+<p>Une attribution connue ne doit jamais être partagée avec le groupe.</p>
+{% endblock %}
