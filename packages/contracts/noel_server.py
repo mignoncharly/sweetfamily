@@ -17,6 +17,20 @@ def application(spec):
     return getattr(importlib.import_module(module), name)
 
 
+def proxy_options():
+    proxy = os.environ.get("TRUSTED_PROXY", "")
+    if not proxy:
+        return {"clear_untrusted_proxy_headers": True}
+    if proxy != "127.0.0.1":
+        raise ValueError("Only the private loopback reverse proxy may be trusted")
+    return {
+        "trusted_proxy": proxy,
+        "trusted_proxy_count": 1,
+        "trusted_proxy_headers": {"x-forwarded-for", "x-forwarded-proto"},
+        "clear_untrusted_proxy_headers": True,
+    }
+
+
 def stop_children(children):
     for child in children:
         if child.poll() is None:
@@ -39,7 +53,7 @@ def serve_application(spec, *, port, processes=1, threads=4):
             host="127.0.0.1",
             port=port,
             threads=threads,
-            clear_untrusted_proxy_headers=True,
+            **proxy_options(),
         )
         return
     if os.name != "posix":
@@ -91,5 +105,5 @@ if __name__ == "__main__":
             application(sys.argv[2]),
             sockets=[inherited],
             threads=int(sys.argv[4]),
-            clear_untrusted_proxy_headers=True,
+            **proxy_options(),
         )

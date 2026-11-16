@@ -57,6 +57,8 @@ COUNTRIES.sort(key=lambda row: (row[0] not in {"FR", "DE"}, row[1]))
 def context(request):
     return {
         "service_role": settings.SERVICE_ROLE,
+        "staging": settings.APP_ENV == "staging",
+        "mail_disabled": settings.MAIL_PROVIDER == "blocked",
         "vault_origin": settings.VAULT_ORIGIN,
         "control_origin": settings.CONTROL_ORIGIN,
         "simulation": settings.MAIL_PROVIDER == "mailpit",

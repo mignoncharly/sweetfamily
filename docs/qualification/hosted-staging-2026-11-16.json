@@ -1,0 +1,192 @@
+{
+  "date": "2026-11-16",
+  "status": "PREPARED_PRIVATE; PUBLIC_ACTIVATION_BLOCKED",
+  "domains": {
+    "control": "sweetfamily.gestionatech.de",
+    "vault": "vault.sweetfamily.gestionatech.de"
+  },
+  "public_blockers": [
+    "A record vault.sweetfamily.gestionatech.de -> 217.154.166.155 missing",
+    "sudo authentication required for nginx/certificate activation"
+  ],
+  "email": "blocked; no live email authorized or sent",
+  "source_sha256": "641a67a0b6571fae5a60fc4c90b53213d6bad32f1f5915935c72d5159bedf627",
+  "qualification_run": "20261116T122921Z-db5d1327",
+  "local_status": "PASS",
+  "release_status": "BLOCKED",
+  "release_blockers": [
+    "T22: Automated Chromium/Axe/keyboard/reflow only; real phone, assistive technology and manual zoom review not executed.",
+    "T23: Live Zoho/Resend delivery deferred by user. Configure secrets locally, verify authorised sender domain and run staging_mail probe to authorised inbox, retaining delivery facts.",
+    "Independent security review and genuinely separated operator/domains/keys/recovery not demonstrated"
+  ],
+  "test_counts": {
+    "browser-control.xml": 1,
+    "browser-vault.xml": 1,
+    "root.xml": 76,
+    "service-control.xml": 51,
+    "service-vault.xml": 164
+  },
+  "stages": [
+    {
+      "stage": "checks",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 6.173
+    },
+    {
+      "stage": "security",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 3.079
+    },
+    {
+      "stage": "artifacts",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 4.829
+    },
+    {
+      "stage": "tests",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 94.184
+    },
+    {
+      "stage": "browser-load",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 43.673
+    },
+    {
+      "stage": "engine-timing",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 4.092
+    }
+  ],
+  "http": {
+    "control": {
+      "role": "control",
+      "events": 2,
+      "sessions_per_event": 20,
+      "concurrency": 40,
+      "requests": 400,
+      "warmup_requests": 40,
+      "p50_http_ms": 181.119,
+      "p95_http_ms": 243.38,
+      "max_http_ms": 257.772,
+      "wall_seconds": 1.9,
+      "target_p95_ms": 500,
+      "transport": "HTTP loopback, new connection per request, no TLS",
+      "server_threads": 4,
+      "server_processes": 2,
+      "threads_per_process": 2,
+      "resource_limits": "none; local host, not reference production sizes",
+      "target_met": true,
+      "terminated_backends": 6,
+      "reconnect_after_backend_termination": "PASS",
+      "db_conn_max_age": 60,
+      "db_health_checks": true
+    },
+    "vault": {
+      "role": "vault",
+      "events": 2,
+      "sessions_per_event": 20,
+      "concurrency": 40,
+      "requests": 400,
+      "warmup_requests": 40,
+      "p50_http_ms": 210.32,
+      "p95_http_ms": 304.977,
+      "max_http_ms": 336.495,
+      "wall_seconds": 2.357,
+      "target_p95_ms": 500,
+      "transport": "HTTP loopback, new connection per request, no TLS",
+      "server_threads": 4,
+      "server_processes": 2,
+      "threads_per_process": 2,
+      "resource_limits": "none; local host, not reference production sizes",
+      "target_met": true,
+      "terminated_backends": 6,
+      "reconnect_after_backend_termination": "PASS",
+      "db_conn_max_age": 60,
+      "db_health_checks": true
+    }
+  },
+  "private_checks": {
+    "control": {
+      "postgres_ssl": [
+        true,
+        "TLSv1.3",
+        256
+      ],
+      "environment": "staging",
+      "events": 0
+    },
+    "vault": {
+      "postgres_ssl": [
+        true,
+        "TLSv1.3",
+        256
+      ],
+      "environment": "staging",
+      "events": 0
+    },
+    "foreign_ca": "REFUSED as expected",
+    "foreign_credentials": "REFUSED as expected"
+  },
+  "private_browser": {
+    "scope": "Private loopback TLS proxy, temporary certificate; not public HTTPS verification",
+    "facts": [
+      {
+        "role": "control",
+        "path": "/",
+        "status": 200,
+        "axe_violations": 0
+      },
+      {
+        "role": "control",
+        "path": "/accounts/login/code/",
+        "status": 200,
+        "axe_violations": 0
+      },
+      {
+        "role": "vault",
+        "path": "/",
+        "status": 200,
+        "axe_violations": 0
+      },
+      {
+        "role": "vault",
+        "path": "/accounts/login/code/",
+        "status": 200,
+        "axe_violations": 0
+      }
+    ]
+  },
+  "deployment_file_sha256": {
+    "scripts/hosted.py": "2522dee4a1430bc25627536853bd3624c1dcd63e8820a5f463e850e033376be9",
+    "scripts/activate_hosted.sh": "28f413efe3eb271a95a22a9b00058435e7cc9bf179c5b52618d1704172309247",
+    "infra/hosted/sweetfamily.conf": "5c273d3d01f8346b08612301df477c2af74d3489220d43e16ddd0c5a6acb8536"
+  },
+  "artifact_sha256": {
+    "control": "ae31a0a881b5194334329eb6b77324f4be76d6b3891067db28d71298e599d5f6",
+    "vault": "0ab8eb0ce329d46b94e40603c9bcc8fb2eef5429ca972d53b59a6cd8953f110f"
+  },
+  "evidence_sha256": {
+    "artifacts.log": "2afaa0ce5cab2245b55120d696b9682dd512200c2b7c4c8ce88d5640fe2da397",
+    "browser-control.xml": "97d9a94e87c38a8798f4ac8c117a4e3c60152ef89412ff4768353ef04a3b4558",
+    "browser-load.log": "89a9152152179551e477f3e4ec2bc46d45b9c12e8324bfc1d6d184b3558d993f",
+    "browser-vault.xml": "0e4a44093b9f847160981e51a8c2fae3d7f573ce195ca81da17a6f78fee8f13e",
+    "checks.log": "eea79628f3f37289b6a9c86d15cc6e04036fdb1618acff4fef5d714e23aae837",
+    "engine-timing.log": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "engine.json": "d5410e32416846a1919b4897e0d8b31380cf6f51512a467ffae9355f793dee95",
+    "http-control.json": "ec4dca96714b1adda4958700aa084683e84838cc7af5bc5bd1d4af30acfc10cf",
+    "http-vault.json": "e25242c82ff59a02c3ba95fb43f9f59df69cd7128d7d33a82a39cc419bce62ff",
+    "root.xml": "c15a73cded87390c1cae8c46adc03a45cb9433ebe5f58e8646289d9e31e84b03",
+    "security.log": "316b83a3c1e67357fd7926483f8308908bc2ee6def1db77af49f9e9a43a0a07e",
+    "service-control.xml": "aba9df0bcf251189d8cc6a3d4f589e0773221156812f3c4e9fef578b4dd9fa48",
+    "service-vault.xml": "b3b7e38bc1084bd61b4641c13ea2ecd9e74c95540c1484f40b2246cb98d73134",
+    "smtp-local.json": "22105528d0259daea6b3bebef863887fb3773bea66d0f7014582bd64e12a7eb3",
+    "tests.log": "e9e8393a6966e346ee32ee06d6ddfdefed7eedb0e87946a0871034328abdf212"
+  }
+}

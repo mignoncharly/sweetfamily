@@ -168,3 +168,16 @@ reste BLOCKED. PostgreSQL système 17.11 est conservé pour le local et ne valid
 17.12 enregistré pour la production. Aucun service partagé, DNS ou email réel n'est activé.
 Téléphone/lecteur d'écran/zoom, email autorisé, indépendance, HTTPS/supervision/maintenance
 planifiée/backups/alertes, restauration indépendante RPO/RTO et revue externe restent ouverts.
+
+## Préparation des domaines hébergés — 16 novembre 2026
+
+L'utilisateur demande le portail sweetfamily.gestionatech.de et confirme le coffre
+vault.sweetfamily.gestionatech.de. Six services staging privés sont préparés et actifs sur
+bases/credentials/venvs neufs, SQL TLS verify-full, artefacts de rôles, unités utilisateur,
+backups initiaux et proxy nginx testé en privé. La source passe 76 tests racine, 51/164 cas
+imbriqués, navigateurs/Axe et audits ; voir [rapport hébergé](qualification/hosted-staging-2026-11-16.md).
+
+L'activation publique reste BLOQUÉE : record A du coffre absent, sudo requérant une
+authentification pour installer nginx et obtenir les certificats. Le [runbook](runbooks/hosted-staging.md)
+et le script administrateur sont prêts ; aucune réussite publique ou production n'est
+revendiquée. L'email et la connexion email restent désactivés. gtech n'est pas modifié.
